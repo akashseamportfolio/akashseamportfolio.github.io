@@ -81,17 +81,43 @@ document.querySelectorAll('.work-menu').forEach(menu=>{
 })();
 const siteHeader=document.querySelector('.site-header');if(siteHeader){const measure=()=>document.documentElement.style.setProperty('--header-height',siteHeader.getBoundingClientRect().height+'px');measure();window.addEventListener('resize',measure);}
 
-// A stable hit area avoids hover flicker as the faces turn around the Y axis.
-document.querySelectorAll('[data-portrait-flip]').forEach(card=>{
- const button=card.querySelector('.portrait-toggle'),front=card.querySelector('.portrait-front'),back=card.querySelector('.portrait-back'),photo=back.querySelector('img');
- let flipped=false,available=true;
- function show(value){flipped=available&&value;card.classList.toggle('is-flipped',flipped);front.setAttribute('aria-hidden',String(flipped));back.setAttribute('aria-hidden',String(!flipped));button.setAttribute('aria-pressed',String(flipped));button.setAttribute('aria-label',flipped?button.dataset.hideLabel:button.dataset.showLabel);}
- function unavailable(){available=false;show(false);button.hidden=true;}
- photo.addEventListener('error',unavailable);
- if(photo.complete&&!photo.naturalWidth)unavailable();else button.hidden=false;
- card.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse')show(true)});
- card.addEventListener('pointerleave',event=>{if(event.pointerType==='mouse')show(false)});
- button.addEventListener('click',()=>show(!flipped));
- button.addEventListener('blur',()=>show(false));
- button.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();show(false)}});
-});
+// Pointer entry gives the card a flick. The hit area never rotates.
+(()=>{
+ const cards=document.querySelectorAll('[data-portrait-flip]');if(!cards.length)return;
+ const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
+ let samples=[];
+ document.addEventListener('pointermove',event=>{if(event.pointerType!=='mouse')return;const now=performance.now();samples=samples.filter(p=>now-p.time<100);samples.push({x:event.clientX,y:event.clientY,time:now});},{passive:true,capture:true});
+ function entrySpeed(event){const now=performance.now(),recent=samples.filter(p=>now-p.time<120),first=recent[0];if(!first)return .6;const elapsed=now-first.time;return elapsed>0?Math.hypot(event.clientX-first.x,event.clientY-first.y)/Math.max(8,elapsed):.6;}
+ cards.forEach(card=>{
+  const button=card.querySelector('.portrait-toggle'),turn=card.querySelector('.portrait-turn'),front=card.querySelector('.portrait-front'),back=card.querySelector('.portrait-back'),photo=back.querySelector('img');
+  let angle=0,frame=0,available=true,landingBack=false;
+  function draw(){turn.style.transform='rotateY('+angle+'deg)';}
+  function settle(){cancelAnimationFrame(frame);frame=0;angle=landingBack?-180:0;draw();front.setAttribute('aria-hidden',String(landingBack));back.setAttribute('aria-hidden',String(!landingBack));button.setAttribute('aria-pressed',String(landingBack));}
+  function spin(speed=.9){
+   if(!available)return;
+   cancelAnimationFrame(frame);
+   const strength=Math.min(1,Math.max(0,speed)/2.5),turns=2+Math.round(strength*5),duration=1800+strength*1400,start=angle,started=performance.now();
+   landingBack=Math.random()<.5;
+   const target=-360*(Math.ceil(-start/360)+turns)-(landingBack?180:0);
+   if(motion.matches){settle();return;}
+   function tick(now){const progress=Math.min(1,(now-started)/duration),ease=1-Math.pow(1-progress,3);angle=start+(target-start)*ease;draw();if(progress<1)frame=requestAnimationFrame(tick);else settle();}
+   frame=requestAnimationFrame(tick);
+  }
+  function unavailable(){available=false;landingBack=false;settle();button.hidden=true;}
+  photo.addEventListener('error',unavailable);
+  if(photo.complete&&!photo.naturalWidth)unavailable();else button.hidden=false;
+  card.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse')spin(entrySpeed(event));});
+  button.addEventListener('click',()=>{
+   if(!available)return;
+   cancelAnimationFrame(frame);
+   // Interrupt any hover spin and turn to the opposite of the visible face.
+   const face=Math.round(-angle/180),start=angle,target=-(face+1)*180,started=performance.now();
+   landingBack=Math.abs(face+1)%2===1;
+   if(motion.matches){settle();return;}
+   function tick(now){const progress=Math.min(1,(now-started)/550),ease=progress*progress*(3-2*progress);angle=start+(target-start)*ease;draw();if(progress<1)frame=requestAnimationFrame(tick);else settle();}
+   frame=requestAnimationFrame(tick);
+  });
+  button.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();settle();}});
+  motion.addEventListener('change',()=>{if(motion.matches&&frame)settle();});
+ });
+})();

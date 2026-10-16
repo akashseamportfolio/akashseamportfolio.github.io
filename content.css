@@ -100,8 +100,7 @@ main{min-width:0}img,video{max-width:100%}
 
 /* Both faces keep the original frame, corner accents and spacing. */
 .portrait-flip{position:relative;perspective:1200px;min-width:0;width:100%}
-.portrait-turn{display:grid;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.22,.68,.2,1)}
-.portrait-flip.is-flipped .portrait-turn{transform:rotateY(-180deg)}
+.portrait-turn{display:grid;transform-style:preserve-3d}
 .portrait-turn>.portrait{grid-area:1/1;min-width:0;width:100%;max-width:none;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .portrait-turn>.portrait-back{transform:rotateY(180deg)}
 .portrait-flip .portrait-photo{aspect-ratio:auto}
