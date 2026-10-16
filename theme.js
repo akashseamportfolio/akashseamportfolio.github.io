@@ -1,0 +1,1 @@
+(() => {let theme='light';try{theme=localStorage.getItem('akash-theme')||'light'}catch{} document.documentElement.dataset.theme=theme==='dark'?'dark':'light';document.documentElement.style.colorScheme=document.documentElement.dataset.theme;})();
