@@ -1,6 +1,7 @@
-import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=8d641d76ebb0';
-import {pageHtml,makePublicTextFiles} from './site.js?v=8d641d76ebb0';
-import {validate,normalize} from './runtime.js?v=8d641d76ebb0';
+import {mergeDrafts} from './draft-merge.js?v=c2fe1b99d129';
+import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=c2fe1b99d129';
+import {pageHtml,makePublicTextFiles} from './site.js?v=c2fe1b99d129';
+import {validate,normalize} from './runtime.js?v=c2fe1b99d129';
 const STATE='studio/state.json',FILES='studio/files/';
 const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',svg:'image/svg+xml',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav'};
 export function initialState(draft,published=draft){return {format:1,revision:0,draft:normalize(structuredClone(draft)),published:normalize(structuredClone(published)),savedAt:null,publishedAt:null};}
@@ -29,11 +30,36 @@ export class GitHubDesk{
   this.pendingCommit=commit;this.pendingOperation='editor';return {commit,unchanged:commit===head};
  }
  async saveState(next){const result=await this.client.put(this.sourceRepo,STATE,JSON.stringify(next),this.stateSha,'Save Studio Desk draft');this.state=next;this.stateSha=result.content.sha;return {revision:next.revision,savedAt:next.savedAt,publishedAt:next.publishedAt};}
- async saveDraft(body){if(!this.state||body.revision!==this.state.revision)throw new Error('A newer draft exists. Reload before saving.');validate(body.data);const next={...this.state,draft:structuredClone(body.data),revision:this.state.revision+1,savedAt:new Date().toISOString()};return this.saveState(next);}
+ mergeDraft(base,local,remote){return mergeDrafts(base,local,remote).draft;}
+ conflictError(base,local,remote){const merged=mergeDrafts(base,local,remote.data.draft);this.draftConflict={base:structuredClone(base),remote,paths:merged.conflicts};return Object.assign(new Error('Some fields changed in both this tab and GitHub. Choose how to resolve them; your edits are still here.'),{code:'DRAFT_CONFLICT',paths:merged.conflicts});}
+ async saveDraft(body){
+  if(!this.state||body.revision!==this.state.revision)throw new Error('A newer draft exists in this session. Download this tab’s draft before reconnecting.');
+  validate(body.data);const base=structuredClone(this.state.draft);
+  for(let attempt=0;attempt<2;attempt++){
+   const remote=await this.client.json(this.sourceRepo,STATE);if(!remote)throw new Error('The saved draft is missing. Download this tab’s draft before reconnecting.');
+   validate(remote.data.draft);const merged=mergeDrafts(base,body.data,remote.data.draft);
+   if(merged.conflicts.length)throw this.conflictError(base,body.data,remote);
+   const next={...remote.data,draft:merged.draft,revision:remote.data.revision+1,savedAt:new Date().toISOString()};validate(next.draft);
+   try{const result=await this.client.put(this.sourceRepo,STATE,JSON.stringify(next),remote.sha,'Save Studio Desk draft');this.state=next;this.stateSha=result.content.sha;this.draftConflict=null;return {revision:next.revision,savedAt:next.savedAt,publishedAt:next.publishedAt,draft:structuredClone(next.draft)};}catch(error){if(error.status!==409||attempt===1)throw error;}
+  }
+ }
+ async resolveDraft(local,choice){
+  if(!this.draftConflict)throw new Error('Save the draft again to check for conflicts.');validate(local);
+  const head=await this.client.head(this.sourceRepo,this.sourceBranch),remote=await this.client.json(this.sourceRepo,STATE,head),base=this.draftConflict.base;
+  if(!remote)throw new Error('The saved draft is missing.');validate(remote.data.draft);
+  if(remote.sha!==this.draftConflict.remote.sha)throw this.conflictError(base,local,remote);
+  const merged=choice==='local'?mergeDrafts(base,local,remote.data.draft):mergeDrafts(base,remote.data.draft,local);
+  const next={...remote.data,draft:merged.draft,revision:remote.data.revision+1,savedAt:new Date().toISOString()};validate(next.draft);
+  const stamp=new Date().toISOString().replaceAll(':','-')+'_'+crypto.randomUUID();
+  const files=new Map([[STATE,JSON.stringify(next)],['studio/history/'+stamp+'_tab.json',JSON.stringify({data:local,createdAt:next.savedAt,kind:'Draft before conflict resolution'})],['studio/history/'+stamp+'_github.json',JSON.stringify({data:remote.data.draft,createdAt:next.savedAt,kind:'GitHub draft before conflict resolution'})]]);
+  const commit=await this.client.commitFiles(this.sourceRepo,this.sourceBranch,files,{expectedHead:head,message:'Resolve draft conflict; preserve both drafts in private history'});
+  this.state=next;this.stateSha=(await this.client.json(this.sourceRepo,STATE,commit)).sha;this.draftConflict=null;return {draft:structuredClone(next.draft),revision:next.revision,publishedAt:next.publishedAt};
+ }
+
  async api(path,body){
   if(path==='state'){if(!this.state)throw new Error('Import your portfolio to start editing.');return {draft:structuredClone(this.state.draft),revision:this.state.revision,savedAt:this.state.savedAt,publishedAt:this.state.publishedAt};}
   if(path==='save')return this.serial(()=>this.saveDraft(body));
-  if(path==='publish')return this.serial(async()=>{await this.saveDraft(body);await this.publish(true,this.state.draft);return {revision:this.state.revision,savedAt:this.state.savedAt,publishedAt:this.state.publishedAt};});
+  if(path==='publish')return this.serial(async()=>{await this.saveDraft(body);await this.publish(true,this.state.draft);return {revision:this.state.revision,savedAt:this.state.savedAt,publishedAt:this.state.publishedAt,draft:structuredClone(this.state.draft)};});
   if(path.startsWith('media'))return {items:await this.media(),cursor:null};
   if(path==='history')return {items:await this.history()};
   if(path==='restore'){if(!/^studio\/history\/[\w.-]+\.json$/.test(body.key))throw new Error('Invalid history entry.');const record=await this.client.json(this.sourceRepo,body.key);if(!record)throw new Error('Version missing.');return {data:record.data.data};}
@@ -103,6 +129,7 @@ export class GitHubDesk{
   const head=await this.client.head(this.sourceRepo,this.sourceBranch),current=await this.client.json(this.sourceRepo,STATE);
   if((current?.sha||null)!==(this.stateSha||null))throw new Error('A newer draft exists. Reload before restoring.');
   for(const item of input.history||[]){if(!/^studio\/history\/[\w.-]+\.json$/.test(item.path))throw new Error('Invalid history path.');validate(item.value.data);files.set(item.path,JSON.stringify(item.value));}
+  if(this.state)files.set('studio/history/'+new Date().toISOString().replaceAll(':','-')+'_'+crypto.randomUUID()+'_before-restore.json',JSON.stringify({data:this.state.draft,createdAt:new Date().toISOString(),kind:'Draft before backup restore'}));
   files.set(STATE,JSON.stringify(next));await this.client.commitFiles(this.sourceRepo,this.sourceBranch,files,{expectedHead:head,message:'Restore private Studio Desk backup'});
   const result=await this.client.json(this.sourceRepo,STATE);this.state=result.data;this.stateSha=result.sha;
   for(const url of this.urls.values())URL.revokeObjectURL(url);this.urls.clear();this.mediaBytes.clear();return {draft:this.state.draft,revision:this.state.revision};
