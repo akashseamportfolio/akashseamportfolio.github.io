@@ -80,3 +80,18 @@ document.querySelectorAll('.work-menu').forEach(menu=>{
  dots.forEach(dot=>{dot.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')show(dot)});dot.addEventListener('pointerleave',()=>timer=setTimeout(hide,160));dot.addEventListener('focus',()=>show(dot));dot.addEventListener('blur',hide)});tip.addEventListener('pointerenter',()=>clearTimeout(timer));tip.addEventListener('pointerleave',hide);document.addEventListener('keydown',e=>{if(e.key==='Escape')hide()});window.addEventListener('scroll',hide,{passive:true});window.addEventListener('resize',hide);
 })();
 const siteHeader=document.querySelector('.site-header');if(siteHeader){const measure=()=>document.documentElement.style.setProperty('--header-height',siteHeader.getBoundingClientRect().height+'px');measure();window.addEventListener('resize',measure);}
+
+// A stable hit area avoids hover flicker as the faces turn around the Y axis.
+document.querySelectorAll('[data-portrait-flip]').forEach(card=>{
+ const button=card.querySelector('.portrait-toggle'),front=card.querySelector('.portrait-front'),back=card.querySelector('.portrait-back'),photo=back.querySelector('img');
+ let flipped=false,available=true;
+ function show(value){flipped=available&&value;card.classList.toggle('is-flipped',flipped);front.setAttribute('aria-hidden',String(flipped));back.setAttribute('aria-hidden',String(!flipped));button.setAttribute('aria-pressed',String(flipped));button.setAttribute('aria-label',flipped?button.dataset.hideLabel:button.dataset.showLabel);}
+ function unavailable(){available=false;show(false);button.hidden=true;}
+ photo.addEventListener('error',unavailable);
+ if(photo.complete&&!photo.naturalWidth)unavailable();else button.hidden=false;
+ card.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse')show(true)});
+ card.addEventListener('pointerleave',event=>{if(event.pointerType==='mouse')show(false)});
+ button.addEventListener('click',()=>show(!flipped));
+ button.addEventListener('blur',()=>show(false));
+ button.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();show(false)}});
+});
