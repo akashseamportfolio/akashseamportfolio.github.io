@@ -1,6 +1,6 @@
-import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=bc75b58b87fe';
-import {pageHtml,makePublicTextFiles} from './site.js?v=bc75b58b87fe';
-import {validate,normalize} from './runtime.js?v=bc75b58b87fe';
+import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=4857c046d54b';
+import {pageHtml,makePublicTextFiles} from './site.js?v=4857c046d54b';
+import {validate,normalize} from './runtime.js?v=4857c046d54b';
 const STATE='studio/state.json',FILES='studio/files/';
 const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',svg:'image/svg+xml',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav'};
 export function initialState(draft,published=draft){return {format:1,revision:0,draft:normalize(structuredClone(draft)),published:normalize(structuredClone(published)),savedAt:null,publishedAt:null};}

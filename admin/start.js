@@ -1,5 +1,5 @@
-import {sealConnection,unlockConnection,vaultStorageKey} from './vault.js?v=bc75b58b87fe';
-import {GitHubDesk} from './backend.js?v=bc75b58b87fe';
+import {sealConnection,unlockConnection,vaultStorageKey} from './vault.js?v=4857c046d54b';
+import {GitHubDesk} from './backend.js?v=4857c046d54b';
 const q=s=>document.querySelector(s),text=(element,value)=>element.textContent=value;
 let desk;
 const setup=q('#github-connection'),notice=q('#connection-notice');
