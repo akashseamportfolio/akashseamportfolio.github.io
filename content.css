@@ -104,7 +104,7 @@ main{min-width:0}img,video{max-width:100%}
 .portrait-turn>.portrait{grid-area:1/1;min-width:0;width:100%;max-width:none;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .portrait-turn>.portrait-back{transform:rotateY(180deg)}
 .portrait-flip .portrait-photo{aspect-ratio:auto}
-.portrait-toggle{position:absolute;inset:0;z-index:2;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:pointer;border-radius:0}
+.portrait-toggle{position:absolute;inset:0;z-index:2;width:100%;height:100%;padding:0;border:0;background:transparent;cursor:pointer;border-radius:0;touch-action:pan-y;user-select:none}
 .portrait-toggle:focus-visible{outline:3px solid var(--accent);outline-offset:6px}
 @media(max-width:900px){.portrait-flip{max-width:520px}}
 @media(max-width:620px){.portrait-flip .portrait-photo{aspect-ratio:1;height:auto}}

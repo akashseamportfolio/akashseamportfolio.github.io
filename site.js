@@ -81,43 +81,60 @@ document.querySelectorAll('.work-menu').forEach(menu=>{
 })();
 const siteHeader=document.querySelector('.site-header');if(siteHeader){const measure=()=>document.documentElement.style.setProperty('--header-height',siteHeader.getBoundingClientRect().height+'px');measure();window.addEventListener('resize',measure);}
 
-// Pointer entry gives the card a flick. The hit area never rotates.
+// Gesture-driven card momentum. New input interrupts at the current angle.
 (()=>{
  const cards=document.querySelectorAll('[data-portrait-flip]');if(!cards.length)return;
- const motion=window.matchMedia('(prefers-reduced-motion: reduce)');
- let samples=[];
- document.addEventListener('pointermove',event=>{if(event.pointerType!=='mouse')return;const now=performance.now();samples=samples.filter(p=>now-p.time<100);samples.push({x:event.clientX,y:event.clientY,time:now});},{passive:true,capture:true});
- function entrySpeed(event){const now=performance.now(),recent=samples.filter(p=>now-p.time<120),first=recent[0];if(!first)return .6;const elapsed=now-first.time;return elapsed>0?Math.hypot(event.clientX-first.x,event.clientY-first.y)/Math.max(8,elapsed):.6;}
+ const motion=window.matchMedia('(prefers-reduced-motion: reduce)');let samples=[];
+ document.addEventListener('pointermove',event=>{if(event.pointerType!=='mouse')return;const now=performance.now();samples=samples.filter(p=>now-p.time<100);samples.push({x:event.clientX,time:now});},{passive:true,capture:true});
+ function entryVelocity(event){const now=performance.now(),first=samples.find(p=>now-p.time<120);if(!first)return 180;const dx=event.clientX-first.x;return Math.sign(dx||1)*Math.max(180,Math.min(850,Math.abs(dx)/Math.max(16,now-first.time)*360));}
  cards.forEach(card=>{
   const button=card.querySelector('.portrait-toggle'),turn=card.querySelector('.portrait-turn'),front=card.querySelector('.portrait-front'),back=card.querySelector('.portrait-back'),photo=back.querySelector('img');
-  let angle=0,frame=0,available=true,landingBack=false;
+  let angle=0,frame=0,available=true,gesture=null,suppressClickUntil=0,targetAngle=0;
   function draw(){turn.style.transform='rotateY('+angle+'deg)';}
-  function settle(){cancelAnimationFrame(frame);frame=0;angle=landingBack?-180:0;draw();front.setAttribute('aria-hidden',String(landingBack));back.setAttribute('aria-hidden',String(!landingBack));button.setAttribute('aria-pressed',String(landingBack));}
-  function spin(speed=.9){
-   if(!available)return;
-   cancelAnimationFrame(frame);
-   const strength=Math.min(1,Math.max(0,speed)/2.5),turns=2+Math.round(strength*5),duration=1800+strength*1400,start=angle,started=performance.now();
-   landingBack=Math.random()<.5;
-   const target=-360*(Math.ceil(-start/360)+turns)-(landingBack?180:0);
-   if(motion.matches){settle();return;}
-   function tick(now){const progress=Math.min(1,(now-started)/duration),ease=1-Math.pow(1-progress,3);angle=start+(target-start)*ease;draw();if(progress<1)frame=requestAnimationFrame(tick);else settle();}
+  function stop(){cancelAnimationFrame(frame);frame=0;}
+  function settle(target){stop();angle=((target%360)+360)%360;draw();const photoVisible=Math.round(angle/180)%2===1;front.setAttribute('aria-hidden',String(photoVisible));back.setAttribute('aria-hidden',String(!photoVisible));button.setAttribute('aria-pressed',String(photoVisible));}
+  function animate(target,duration,click=false){
+   stop();targetAngle=target;const start=angle,started=performance.now();
+   if(motion.matches){settle(target);return;}
+   function tick(now){const t=Math.min(1,(now-started)/duration),ease=click?t*t*(3-2*t):1-Math.pow(1-t,3);angle=start+(target-start)*ease;draw();if(t<1)frame=requestAnimationFrame(tick);else settle(target);}
    frame=requestAnimationFrame(tick);
   }
-  function unavailable(){available=false;landingBack=false;settle();button.hidden=true;}
+  function coast(velocity){
+   if(!available)return;
+   const direction=Math.sign(velocity||1),speed=Math.min(850,Math.max(180,Math.abs(velocity)));
+   const strength=(speed-180)/670;
+   // Two full turns for a light flick, rising to four for a strong flick.
+   const travel=direction*(720+720*strength+(Math.random()-.5)*120);
+   const target=Math.round((angle+travel)/180)*180;
+   animate(target,3200+800*strength);
+  }
+  function unavailable(){available=false;gesture=null;settle(0);button.hidden=true;}
   photo.addEventListener('error',unavailable);
   if(photo.complete&&!photo.naturalWidth)unavailable();else button.hidden=false;
-  card.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse')spin(entrySpeed(event));});
-  button.addEventListener('click',()=>{
-   if(!available)return;
-   cancelAnimationFrame(frame);
-   // Interrupt any hover spin and turn to the opposite of the visible face.
-   const face=Math.round(-angle/180),start=angle,target=-(face+1)*180,started=performance.now();
-   landingBack=Math.abs(face+1)%2===1;
-   if(motion.matches){settle();return;}
-   function tick(now){const progress=Math.min(1,(now-started)/550),ease=progress*progress*(3-2*progress);angle=start+(target-start)*ease;draw();if(progress<1)frame=requestAnimationFrame(tick);else settle();}
-   frame=requestAnimationFrame(tick);
+  card.addEventListener('pointerenter',event=>{if(event.pointerType==='mouse'&&!gesture)coast(entryVelocity(event));});
+  button.addEventListener('pointerdown',event=>{
+   if(event.button!==0||!available)return;
+   stop();gesture={id:event.pointerId,x:event.clientX,y:event.clientY,start:angle,moved:false,samples:[{x:event.clientX,time:performance.now()}]};
+   button.setPointerCapture?.(event.pointerId);
   });
-  button.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();settle();}});
-  motion.addEventListener('change',()=>{if(motion.matches&&frame)settle();});
+  button.addEventListener('pointermove',event=>{
+   if(!gesture||event.pointerId!==gesture.id)return;
+   const dx=event.clientX-gesture.x,dy=event.clientY-gesture.y,now=performance.now();
+   if(!gesture.moved&&Math.abs(dx)>8&&Math.abs(dx)>Math.abs(dy)*1.3)gesture.moved=true;
+   if(gesture.moved){if(event.cancelable)event.preventDefault();angle=gesture.start+dx*.85;if(!motion.matches)draw();}
+   gesture.samples=gesture.samples.filter(p=>now-p.time<100);gesture.samples.push({x:event.clientX,time:now});
+  },{passive:false});
+  button.addEventListener('pointerup',event=>{
+   if(!gesture||event.pointerId!==gesture.id)return;
+   const drag=gesture;gesture=null;
+   if(drag.moved){const now=performance.now(),first=drag.samples.find(p=>now-p.time<120);suppressClickUntil=now+500;const velocity=first?(event.clientX-first.x)/Math.max(16,now-first.time)*850:0;if(Math.abs(velocity)<40)animate(Math.round(angle/180)*180,300,true);else coast(velocity);}
+  });
+  button.addEventListener('pointercancel',()=>{gesture=null;animate(Math.round(angle/180)*180,250,true);});
+  button.addEventListener('click',event=>{
+   if(!available||(event?.detail!==0&&performance.now()<suppressClickUntil))return;
+   gesture=null;animate((Math.round(angle/180)+1)*180,450,true);
+  });
+  button.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();gesture=null;settle(Math.round(angle/180)*180);}});
+  motion.addEventListener('change',()=>{if(motion.matches){gesture=null;settle(frame?targetAngle:Math.round(angle/180)*180);}});
  });
 })();
