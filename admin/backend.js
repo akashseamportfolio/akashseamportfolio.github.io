@@ -1,6 +1,6 @@
-import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=281ecef8919e';
-import {pageHtml,makePublicTextFiles} from './site.js?v=281ecef8919e';
-import {validate,normalize} from './runtime.js?v=281ecef8919e';
+import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=bc75b58b87fe';
+import {pageHtml,makePublicTextFiles} from './site.js?v=bc75b58b87fe';
+import {validate,normalize} from './runtime.js?v=bc75b58b87fe';
 const STATE='studio/state.json',FILES='studio/files/';
 const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',svg:'image/svg+xml',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav'};
 export function initialState(draft,published=draft){return {format:1,revision:0,draft:normalize(structuredClone(draft)),published:normalize(structuredClone(published)),savedAt:null,publishedAt:null};}
@@ -18,6 +18,15 @@ export class GitHubDesk{
  }
  async localJson(path){const r=await this.fetcher(new URL(path,this.assetBase),{cache:'no-store'});if(!r.ok)throw new Error('Studio Desk files could not load. Reload this page.');return r.json();}
  async installFiles(){const names=await this.localJson('distribution.json'),files=new Map();for(const name of names){const response=await this.fetcher(new URL(name,this.assetBase),{cache:'no-store'});if(!response.ok)throw new Error('Editor file missing: '+name);files.set('admin/'+name,await response.text());}files.set('admin/distribution.json',JSON.stringify(names));return files;}
+ async updateEditor(){
+  if(!this.pagesReady)throw new Error('Set up the Pages repository first.');
+  const head=await this.client.head(this.pagesRepo,this.pagesBranch),release=await this.client.json(this.pagesRepo,'studio-release.json',head);
+  if(!release)throw new Error('Complete first-time Pages setup first.');
+  const files=await this.installFiles();
+  const manifest={...release.data,managedPaths:[...new Set([...(release.data.managedPaths||[]),...files.keys()])]};
+  files.set('studio-release.json',JSON.stringify(manifest));
+  return this.client.commitFiles(this.pagesRepo,this.pagesBranch,files,{expectedHead:head,message:'Update Studio Desk editor without changing portfolio publication'});
+ }
  async saveState(next){const result=await this.client.put(this.sourceRepo,STATE,JSON.stringify(next),this.stateSha,'Save Studio Desk draft');this.state=next;this.stateSha=result.content.sha;return {revision:next.revision,savedAt:next.savedAt,publishedAt:next.publishedAt};}
  async saveDraft(body){if(!this.state||body.revision!==this.state.revision)throw new Error('A newer draft exists. Reload before saving.');validate(body.data);const next={...this.state,draft:structuredClone(body.data),revision:this.state.revision+1,savedAt:new Date().toISOString()};return this.saveState(next);}
  async api(path,body){

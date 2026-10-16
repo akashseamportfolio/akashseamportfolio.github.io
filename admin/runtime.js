@@ -1,4 +1,4 @@
-import {ensureModel,copyDefaults} from './model-module.js?v=281ecef8919e';
+import {ensureModel,copyDefaults} from './model-module.js?v=bc75b58b87fe';
 export const escape = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function safeUrl(value){const s=String(value||'').trim();return /^(https?:\/\/|mailto:|(?:\.?\.?\/)?[a-zA-Z0-9_-][a-zA-Z0-9_./?#=&%+-]*$|#)/.test(s)&&!/^\/\//.test(s)?s:''}
 function inline(s){return escape(s).replace(/\[([^\]]+)\]\(([^\s)]+)\)/g,(_,t,u)=>`<a href="${escape(safeUrl(u.replaceAll('&amp;','&')))}">${t}</a>`).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>')}

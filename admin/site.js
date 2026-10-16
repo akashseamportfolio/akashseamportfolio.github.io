@@ -1,5 +1,5 @@
-import {renderHome,renderWork,renderSkills,renderProject,validate,escape} from './runtime.js?v=281ecef8919e';
-import {templates} from './templates.js?v=281ecef8919e';
+import {renderHome,renderWork,renderSkills,renderProject,validate,escape} from './runtime.js?v=bc75b58b87fe';
+import {templates} from './templates.js?v=bc75b58b87fe';
 export function renderPages(data){validate(data);return new Map([['index.html',renderHome(data,templates)],['work/index.html',renderWork(data,templates)],['skills/index.html',renderSkills(data,templates)],...data.projects.filter(p=>p.status==='published'&&p.pageEnabled).map(p=>[p.slug+'/index.html',renderProject(data,p,templates)])]);}
 export function pageHtml(data,id){validate(data);if(id==='home')return renderHome(data,templates);if(id==='work')return renderWork(data,templates);if(id==='skills')return renderSkills(data,templates);const p=data.projects.find(p=>p.id===id);if(!p)throw new Error('Project not found.');p.status='published';p.pageEnabled=true;return renderProject(data,p,templates);}
 export function cleanLinks(html,base='/'){
