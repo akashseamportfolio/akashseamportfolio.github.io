@@ -1,6 +1,6 @@
-import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=4857c046d54b';
-import {pageHtml,makePublicTextFiles} from './site.js?v=4857c046d54b';
-import {validate,normalize} from './runtime.js?v=4857c046d54b';
+import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=aea3a0be74d7';
+import {pageHtml,makePublicTextFiles} from './site.js?v=aea3a0be74d7';
+import {validate,normalize} from './runtime.js?v=aea3a0be74d7';
 const STATE='studio/state.json',FILES='studio/files/';
 const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',svg:'image/svg+xml',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav'};
 export function initialState(draft,published=draft){return {format:1,revision:0,draft:normalize(structuredClone(draft)),published:normalize(structuredClone(published)),savedAt:null,publishedAt:null};}
@@ -25,7 +25,8 @@ export class GitHubDesk{
   const files=await this.installFiles();
   const manifest={...release.data,managedPaths:[...new Set([...(release.data.managedPaths||[]),...files.keys()])]};
   files.set('studio-release.json',JSON.stringify(manifest));
-  return this.client.commitFiles(this.pagesRepo,this.pagesBranch,files,{expectedHead:head,message:'Update Studio Desk editor without changing portfolio publication'});
+  const commit=await this.client.commitFiles(this.pagesRepo,this.pagesBranch,files,{expectedHead:head,message:'Update Studio Desk editor without changing portfolio publication'});
+  this.pendingCommit=commit;this.pendingOperation='editor';return {commit,unchanged:commit===head};
  }
  async saveState(next){const result=await this.client.put(this.sourceRepo,STATE,JSON.stringify(next),this.stateSha,'Save Studio Desk draft');this.state=next;this.stateSha=result.content.sha;return {revision:next.revision,savedAt:next.savedAt,publishedAt:next.publishedAt};}
  async saveDraft(body){if(!this.state||body.revision!==this.state.revision)throw new Error('A newer draft exists. Reload before saving.');validate(body.data);const next={...this.state,draft:structuredClone(body.data),revision:this.state.revision+1,savedAt:new Date().toISOString()};return this.saveState(next);}
@@ -87,7 +88,7 @@ export class GitHubDesk{
   if(!release)return {kind:'setup',label:'Studio Desk is not installed on Pages yet'};
   const pages=await this.client.request(this.client.repoPath(this.pagesRepo)+'/pages',{missing:true});if(!pages)return {kind:'setup',label:'Enable Pages: deploy from '+this.pagesBranch+' / root'};
   const latest=await this.client.request(this.client.repoPath(this.pagesRepo)+'/pages/builds/latest',{missing:true});
-  if(latest?.commit!==head||['queued','building'].includes(latest?.status))return {kind:'pending',label:release.data.online?'Publishing portfolio…':'Taking portfolio offline…'};
+  if(latest?.commit!==head||['queued','building'].includes(latest?.status))return {kind:'pending',label:this.pendingOperation==='editor'?'Deploying Studio Desk update · portfolio visibility unchanged…':release.data.online?'Publishing portfolio…':'Taking portfolio offline…'};
   if(latest?.status==='errored')return {kind:'failed',label:'GitHub deployment failed. Retry the deployment.'};
   if(latest?.status!=='built')return {kind:'pending',label:'Waiting for GitHub deployment confirmation…'};
   if(!release.data.online)return {kind:'offline',label:'Portfolio offline · Studio Desk available'};

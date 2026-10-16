@@ -11,7 +11,7 @@ $('#new-project').disabled=false;
 document.addEventListener('click',async event=>{const b=event.target.closest('button');if(!b)return;try{
  if(b.hasAttribute('data-forget-connection')){if(!confirm('Forget the encrypted token saved in this browser? You will need your GitHub token next time.'))return;localStorage.removeItem('studio-github-vault-v1');toast('Saved connection forgotten. This session stays connected.');return;}
  if(b.hasAttribute('data-github-signout')){if(dirty&&!confirm('Disconnect with unsaved changes?'))return;window.studioBackend.disconnect();location.reload();return;}
- if(b.hasAttribute('data-update-editor')){b.disabled=true;await window.studioBackend.serial(()=>window.studioBackend.updateEditor());toast('Editor update sent to GitHub. Wait for deployment, then refresh /admin/. Portfolio publication is unchanged.');b.disabled=false;await refreshPublishStatus();return;}
+ if(b.hasAttribute('data-update-editor')){b.disabled=true;const result=await window.studioBackend.serial(()=>window.studioBackend.updateEditor());toast(result.unchanged?'This editor version is already on GitHub. Refresh GitHub Studio Desk after deployment finishes.':'Editor update sent to GitHub. Wait for deployment, then refresh /admin/. Portfolio publication is unchanged.');b.disabled=false;await refreshPublishStatus();return;}
  if(b.hasAttribute('data-check-publication'))return refreshPublishStatus();
  if(b.hasAttribute('data-publish-draft'))return confirmPublish();
  if(b.hasAttribute('data-retry-publication')){b.disabled=true;await window.studioBackend.retryBuild();await refreshPublishStatus();b.disabled=false;return;}

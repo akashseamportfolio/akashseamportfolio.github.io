@@ -11,9 +11,17 @@ export class GitHubClient{
  async request(path,{method='GET',body,missing=false}={}){
   if(!this.#token)throw new Error('Connect to GitHub to continue.');
   if(!path.startsWith('/')||path.startsWith('//'))throw new Error('Invalid GitHub endpoint.');
-  const response=await this.#fetch('https://api.github.com'+path,{method,headers:{Authorization:'Bearer '+this.#token,Accept:'application/vnd.github+json',...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
+  const response=await this.#fetch('https://api.github.com'+path,{method,cache:'no-store',headers:{Authorization:'Bearer '+this.#token,Accept:'application/vnd.github+json',...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});
   if(response.status===404&&missing)return null;
-  if(!response.ok){const status=response.status;const message=status===401?'Your GitHub token has expired or is invalid. Reconnect with a valid token.':status===403?'GitHub denied this request. Check repository permissions or API usage limits.':status===404?'Repository or file not found. Check the name and that your token can access it.':[409,422].includes(status)?'GitHub changed since this editor loaded. Reload before saving; your current text is still here.':'GitHub could not complete the request ('+status+'). Try again.';throw Object.assign(new Error(message),{status});}
+  if(!response.ok){
+   const status=response.status;let detail='';try{const error=await response.json();detail=typeof error.message==='string'?error.message.slice(0,500):'';}catch{}
+   // Never echo credentials even if an upstream response includes them.
+   if(this.#token)detail=detail.split(this.#token).join('[redacted]');
+   const refConflict=method==='PATCH'&&path.includes('/git/refs/')&&[409,422].includes(status)&&/fast.forward|reference update|conflict/i.test(detail);
+   const draftConflict=method==='PUT'&&path.includes('/contents/')&&status===409;
+   const message=status===401?'Your GitHub token has expired or is invalid. Reconnect with a valid token.':status===403?'GitHub denied this request. Check repository permissions or API usage limits.':status===404?'Repository or file not found. Check the name and that your token can access it.':refConflict?'The repository changed during the update. Your existing website is unchanged by this attempt. Retry Update editor only.':draftConflict?'A newer draft exists on GitHub. Your current text is still here; keep this tab open before resolving the conflict.':'GitHub could not complete '+method+' '+path.split('?')[0]+' ('+status+').'+(detail?' '+detail:' Try again.');
+   throw Object.assign(new Error(message),{status,refConflict,draftConflict});
+  }
   return response.status===204?null:response.json();
  }
  repoPath(repo){if(!/^[\w.-]+\/[\w.-]+$/.test(repo))throw new Error('Use owner/repository.');return '/repos/'+repo}
@@ -26,8 +34,9 @@ export class GitHubClient{
  async commitFiles(repo,branch,files,{message,expectedHead,remove=[]}={}){
   const head=await this.head(repo,branch);if(expectedHead&&head!==expectedHead)throw new Error('The repository changed. Reload before publishing.');
   const base=await this.tree(repo,head),entries=[];
-  for(const [path,value] of files){safePath(path);const blob=await this.request(this.repoPath(repo)+'/git/blobs',{method:'POST',body:{encoding:'base64',content:typeof value==='string'?encodeText(value):bytes64(value)}});entries.push({path,mode:'100644',type:'blob',sha:blob.sha});}
+  for(const [path,value] of files){safePath(path);const bytes=typeof value==='string'?new TextEncoder().encode(value):value;const prefix=new TextEncoder().encode('blob '+bytes.length+'\0'),input=new Uint8Array(prefix.length+bytes.length);input.set(prefix);input.set(bytes,prefix.length);const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-1',input))].map(v=>v.toString(16).padStart(2,'0')).join('');if(base.entries.some(x=>x.path===path&&x.sha===hash))continue;const blob=await this.request(this.repoPath(repo)+'/git/blobs',{method:'POST',body:{encoding:'base64',content:typeof value==='string'?encodeText(value):bytes64(value)}});entries.push({path,mode:'100644',type:'blob',sha:blob.sha});}
   for(const path of remove){safePath(path);if(base.entries.some(x=>x.path===path))entries.push({path,mode:'100644',type:'blob',sha:null});}
+  if(!entries.length)return head;
   const tree=await this.request(this.repoPath(repo)+'/git/trees',{method:'POST',body:{base_tree:base.sha,tree:entries}});
   const commit=await this.request(this.repoPath(repo)+'/git/commits',{method:'POST',body:{message,tree:tree.sha,parents:[head]}});
   // Never force a ref. A concurrent save must fail rather than replace another edit.
