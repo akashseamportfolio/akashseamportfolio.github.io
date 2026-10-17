@@ -109,3 +109,69 @@ main{min-width:0}img,video{max-width:100%}
 @media(max-width:900px){.portrait-flip{max-width:520px}}
 @media(max-width:620px){.portrait-flip .portrait-photo{aspect-ratio:1;height:auto}}
 @media(prefers-reduced-motion:reduce){.portrait-turn{transition:none}}
+
+/* The photo is visible before JavaScript loads; dragging is the only spin trigger. */
+.portrait-photo-first .portrait-turn{transform:rotateY(180deg)}
+.work-group-projects{max-height:min(260px,40dvh);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.all-work-link{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:36px;padding:22px 0;border-top:1px solid var(--hair);font-size:18px;text-decoration:none}
+.all-work-link:hover,.all-work-link:focus-visible{color:var(--accent)}
+.contact-page{min-height:calc(100svh - var(--header-height,90px));padding-block:76px 100px}
+.contact-page h1{font-size:clamp(48px,7vw,84px);letter-spacing:-.05em;margin:0 0 24px}
+.contact-intro{max-width:60ch;color:var(--body);font-size:19px;line-height:1.7}
+.contact-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:64px;margin-top:64px}
+.contact-grid section{border-top:1px solid var(--hair);padding-top:24px;min-width:0}
+.contact-grid h2{font:12px/1.6 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin:0 0 20px}
+.contact-email{display:inline-flex;align-items:center;gap:18px;min-height:44px;font-size:clamp(18px,2.3vw,28px);text-underline-offset:7px;overflow-wrap:anywhere}
+.contact-socials{list-style:none;padding:0;margin:0}.contact-socials a{display:flex;justify-content:space-between;gap:24px;min-height:52px;align-items:center;padding:10px 0;border-bottom:1px solid var(--hair);font-size:20px;text-decoration:none}
+.contact-grid a:hover,.contact-grid a:focus-visible{color:var(--accent)}
+@media(max-width:700px){.contact-page{padding-block:42px 60px}.contact-grid{grid-template-columns:1fr;gap:36px;margin-top:40px}}
+/* Stable category targets, with one compact project panel alongside. */
+.work-dropdown{padding:8px;overflow:visible!important;min-height:calc(var(--menu-rows,6)*44px + 62px);max-width:calc(100vw - 24px)}
+.work-group{width:42%;border:0!important}
+.work-group[hidden]{display:none}
+.work-group summary{height:44px;min-height:44px;padding:8px;gap:6px;letter-spacing:0;font-size:10px;line-height:1.25}
+.work-group summary svg{flex-shrink:0;transform:rotate(-90deg)}
+.work-group[open] summary{background:var(--ink);color:var(--bg)}
+.work-group[open] summary svg{transform:rotate(-90deg)}
+.work-group-projects{position:absolute;left:44%;right:8px;top:8px;margin:0;padding-left:8px;border-left:2px solid var(--accent);max-height:none;overflow:visible;scrollbar-gutter:auto}
+.work-group-projects a{height:44px;min-height:44px;padding:12px 8px;line-height:20px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.work-group-projects .work-more{font-size:11px;text-decoration:underline;text-underline-offset:4px}
+.work-all{display:block;margin-top:12px;border-top:1px solid var(--hair);padding:12px 8px;font:12px/20px 'JetBrains Mono',monospace;color:var(--ink);text-decoration:none}
+.work-all:hover,.work-all:focus-visible{color:var(--accent)}
+/* An unmistakable invitation to continue browsing. */
+.all-work-link{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:48px;padding:28px 32px;border:2px solid var(--ink);border-left:8px solid var(--accent);background:var(--bg);font:500 clamp(24px,4vw,38px)/1.2 'Space Grotesk',sans-serif;text-decoration:none;transition:box-shadow .2s,transform .2s}
+.all-work-link:hover,.all-work-link:focus-visible{box-shadow:6px 6px 0 var(--accent);transform:translate(-2px,-2px)}
+.all-work-arrow{font-size:42px;color:var(--accent)}
+/* Contact: a primary email invitation, followed by a tidy social grid. */
+.contact-page{max-width:1000px;margin-inline:auto}
+.contact-page h1{font-size:clamp(48px,8vw,84px);letter-spacing:-.055em}
+.contact-grid{display:block;margin-top:48px}
+.contact-grid section{border:0;padding:0}
+.contact-grid section+section{margin-top:40px}
+.contact-email{display:flex;align-items:center;gap:20px;border:2px solid var(--ink);border-left:6px solid var(--accent);padding:28px;font-size:clamp(17px,3vw,30px);text-decoration:none}
+.contact-email>span:nth-child(2){flex:1;overflow-wrap:anywhere;min-width:0}
+.contact-icon{width:26px;height:26px;flex-shrink:0;color:var(--accent)}
+.contact-socials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.contact-socials li{border:0;margin:0}
+.contact-socials a{display:flex;align-items:center;gap:16px;border:1px solid var(--hair);padding:22px;text-decoration:none;min-height:76px}
+.contact-socials a>span:nth-child(2){flex:1}
+.contact-grid a:hover,.contact-grid a:focus-visible{border-color:var(--accent)}
+@media(max-width:480px){.contact-socials{grid-template-columns:1fr}.contact-email{padding:20px 14px;gap:12px}.all-work-link{padding:24px 20px}.work-group-projects a{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.all-work-link{transition:none}.all-work-link:hover{transform:none}}
+
+.work-group-projects a[hidden]{display:none}
+.work-group[open] summary:hover,.work-group[open] summary:focus-visible{color:#fff}
+
+
+/* Dragging the public page must not select text or drag images. Editor fields are unaffected. */
+body{-webkit-user-select:none;user-select:none}input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text}img{-webkit-user-drag:none}
+.all-work-link{display:table;width:auto;margin-top:36px;padding:10px 16px;border:0;background:var(--accent);color:var(--onaccent);font:500 18px/1.4 'Space Grotesk',sans-serif;transition:opacity .15s}
+.all-work-link:hover,.all-work-link:focus-visible{color:var(--onaccent);box-shadow:none;transform:none;text-decoration:underline;text-underline-offset:4px}
+.contact-socials{grid-template-columns:1fr;gap:12px}.contact-card-text{display:grid;flex:1;min-width:0}.contact-card-text>span{grid-area:1/1;overflow-wrap:anywhere;transition:opacity .06s linear}.contact-hover{opacity:0}.contact-card:has(.contact-hover):focus-visible .contact-normal{opacity:0}.contact-card:focus-visible .contact-hover{opacity:1}
+@media(hover:hover){.contact-card:has(.contact-hover):hover .contact-normal{opacity:0}.contact-card:hover .contact-hover{opacity:1}}
+@media(prefers-reduced-motion:reduce){.contact-card-text>span{transition:none}}
+.work-dropdown{min-height:0}.work-group{width:100%}.work-group-projects{position:absolute;left:100%;right:auto;top:-2px;width:var(--submenu-width,260px);padding:8px;margin:0;border:2px solid var(--ink);background:var(--bg);min-height:100%}.work-dropdown.submenu-left .work-group-projects{left:auto;right:100%}.work-group-projects a{padding-inline:8px}.work-group-projects .work-more{white-space:normal}.work-group summary{font-size:11px}
+
+.all-work-link,.all-work-link:hover,.all-work-link:focus-visible{color:#fff}
+.work-dropdown:not([hidden]){animation:work-menu-enter .18s ease-out}
+@keyframes work-menu-enter{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
