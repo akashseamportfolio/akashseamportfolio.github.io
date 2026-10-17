@@ -1,7 +1,7 @@
-import {mergeDrafts} from './draft-merge.js?v=c2fe1b99d129';
-import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=c2fe1b99d129';
-import {pageHtml,makePublicTextFiles} from './site.js?v=c2fe1b99d129';
-import {validate,normalize} from './runtime.js?v=c2fe1b99d129';
+import {mergeDrafts} from './draft-merge.js?v=64b954a01ab6';
+import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=64b954a01ab6';
+import {pageHtml,makePublicTextFiles} from './site.js?v=64b954a01ab6';
+import {validate,normalize} from './runtime.js?v=64b954a01ab6';
 const STATE='studio/state.json',FILES='studio/files/';
 const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',svg:'image/svg+xml',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav'};
 export function initialState(draft,published=draft){return {format:1,revision:0,draft:normalize(structuredClone(draft)),published:normalize(structuredClone(published)),savedAt:null,publishedAt:null};}
@@ -73,7 +73,7 @@ export class GitHubDesk{
  async preview(data,page){
   let html=pageHtml(structuredClone(data),page);
   for(const name of ['styles.css','content.css'])html=html.replace(new RegExp('<link rel="stylesheet" href="'+name.replace('.','\\.')+'[^"\\s]*">','g'),()=>'<style>'+this.assets[name]+'</style>');
-  for(const name of ['theme.js','site.js'])html=html.replace(new RegExp('<script src="'+name.replace('.','\\.')+'[^"\\s]*"[^>]*></script>','g'),()=>'<script>'+this.assets[name].replace(/<\/script/gi,'<\\/script')+'</script>');
+  for(const name of ['theme.js','site.js'])html=html.replace(new RegExp('<script src="'+name.replace('.','\\.')+'[^"\\s]*"[^>]*></script>','g'),()=>'<script'+(name==='site.js'?' type="module"':'')+'>'+this.assets[name].replace(/<\/script/gi,'<\\/script')+'</script>');
   const refs=[...new Set([...html.matchAll(/(?:src|poster)="((?:assets|media)\/[^"<>]+)"/g)].map(m=>m[1]))];
   for(const ref of refs){const bytes=await this.fileBytes(ref),type=types[ref.split('.').pop()]||'application/octet-stream';if(!this.urls.has(ref))this.urls.set(ref,URL.createObjectURL(new Blob([bytes],{type})));html=html.replaceAll('"'+ref+'"','"data:'+type+';base64,'+bytes64(bytes)+'"');}
   return html.replace('</body>','<script>document.addEventListener("click",e=>{const a=e.target.closest("a");if(a&&!a.getAttribute("href").startsWith("#"))e.preventDefault()})</script></body>');
