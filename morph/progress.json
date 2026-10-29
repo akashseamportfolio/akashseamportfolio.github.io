@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "source": "snapshot",
+  "updatedAt": null,
+  "overall": {
+    "done": 7,
+    "total": 334
+  },
+  "stages": {
+    "Pitch": {
+      "done": 0,
+      "total": 92
+    },
+    "Alpha": {
+      "done": 0,
+      "total": 117
+    },
+    "Beta": {
+      "done": 0,
+      "total": 76
+    },
+    "Full Release": {
+      "done": 0,
+      "total": 18
+    }
+  },
+  "unassigned": 31
+}
