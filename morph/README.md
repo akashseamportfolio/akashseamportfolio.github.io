@@ -1,15 +1,16 @@
 # Morph development progress
 
-Live page: https://akashseamportfolio.github.io/morph/
+Public page: https://akashseamportfolio.github.io/morph/
 
-Minimal progress dashboard for the Morph game project, styled to match the portfolio's current color palette and typography. Shares the portfolio's `akash-theme` light/dark preference. Hovering over a milestone highlights it; clicking it expands the completed, remaining and total task counts. No redundant refresh button.
+A minimal task-completion dashboard for Morph. It matches the portfolio's color palette, fonts, and saved `akash-theme` light/dark preference. Hovering highlights each milestone and clicking a milestone reveals completed, remaining, and total task counts. No manual refresh button.
 
-### Data and privacy
+## Secure scheduled ClickUp integration
 
-This is a public GitHub Pages site. It loads the aggregate-only `progress.json` created by the private ClickUp sync. It does not and must not include a ClickUp personal token in HTML, JS, git history, or public JSON.
+This site is publicly hosted with GitHub Pages. `morph/progress.json` contains **only aggregate task counts**—never private task names, descriptions, or API tokens.
 
-GitHub Actions workflow: `.github/workflows/morph-progress.yml`. It runs roughly every two hours and deploys the current portfolio with new aggregate counts when the repository secret `CLICKUP_API_TOKEN` has been configured. **The token has not been configured by ChatGPT**; connected GitHub tools cannot manage Actions secrets. Until the repository owner adds a freshly rotated token as that secret, scheduled syncs fail safely and the page shows its last saved snapshot.
+The GitHub Actions workflow `.github/workflows/morph-progress.yml` is configured to run every two hours and publish updated counts from the ClickUp Morph List. For live synchronization the repository owner must add a current ClickUp personal API token as the private GitHub Actions repository secret `CLICKUP_API_TOKEN` under:
+https://github.com/akashseamportfolio/akashseamportfolio.github.io/settings/secrets/actions
 
-ClickUp's personal token was pasted into a chat on 2026-10-29. Rotate/revoke it and use a new token only in GitHub's Actions secret settings: https://github.com/akashseamportfolio/akashseamportfolio.github.io/settings/secrets/actions. Never publish that token.
+The GitHub integration available to this deployment cannot create or modify Actions secrets. Do not paste a ClickUp token into this repository, public page, or JSON. Without the repository secret, the scheduled sync safely fails and the public page continues to display the previous published snapshot.
 
-Progress: the numerator is tasks completed/closed, stages use the `Suggested Stage` custom field, JUICE and DEFFERED remain separate statuses rather than completed states. Percentages represent task counts, not percentage of the overall development effort.
+Stages use the task's `Suggested Stage` field; completed tasks are in ClickUp's COMPLETE/closed state. JUICE and DEFFERED are not completion statuses. Percentages measure tasks, not total development effort.
