@@ -2,114 +2,221 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#182731">
-<meta name="description" content="Morph independent game development progress.">
-<title>Morph — Development Progress</title>
+<meta name="description" content="Morph — an independent video game in development. Explore task completion progress from Pitch to Full Release.">
+<title>Morph — Development Progress | Akash Seam</title>
+<script src="/theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--bg:#182731;--fg:#f0f3f5;--muted:#a9b7bf;--line:#324550;--accent:#f50057;--fill:#b8c6ce;--soft:#223440}
-*{box-sizing:border-box}html,body{min-height:100%;background:var(--bg)}
-body{margin:0;color:var(--fg);font:14px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center}
-main{width:min(620px,calc(100vw - 48px));padding:58px 0 65px}
-header{display:flex;justify-content:space-between;align-items:center;gap:18px}
-a{color:var(--muted);text-decoration:none}a:hover{color:var(--fg)}
-.back{font-size:11px;letter-spacing:.12em;font-weight:650;text-transform:uppercase}
-.refresh{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:transparent;border-radius:24px;padding:8px 12px;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
-.refresh:hover,.refresh:focus-visible{color:var(--fg);border-color:#8195a2;background:var(--soft)}
-.refresh:disabled{opacity:.58;cursor:wait}
-.refresh svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.refresh.is-loading svg{animation:spin .8s linear infinite}
-h1{font-size:clamp(59px,11vw,90px);line-height:1;letter-spacing:-.072em;font-weight:770;margin:62px 0 7px}
-h1 span{color:var(--accent)}.tagline{font-size:13px;color:var(--muted);margin:0 0 67px}
-.line{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:12px}
-.label{font-size:13px;font-weight:650}.pct{font-size:13px;font-weight:650;font-variant-numeric:tabular-nums}
-.track{width:100%;height:7px;background:var(--line);border-radius:20px;overflow:hidden}
-.fill{width:0;height:100%;background:var(--fill);border-radius:20px;transition:width .7s cubic-bezier(.2,.9,.3,1)}
-.overall{margin-bottom:51px}.overall .track{height:10px}.overall .fill{background:var(--accent)}
-.overall .count{font-size:12px;color:var(--muted);margin-top:13px}
-.milestones{display:grid;gap:15px}.milestone{border:1px solid transparent;border-radius:10px;margin:0 -13px;padding:12px 12px 11px;transition:background .15s,border-color .15s}
-.milestone[open]{background:var(--soft);border-color:var(--line)}
-.milestone summary{list-style:none;cursor:pointer;outline-offset:8px}.milestone summary::-webkit-details-marker{display:none}
-.milestone summary:hover .label,.milestone[open] .label{color:var(--fg)}
-.milestone .line{margin:0 0 13px}.milestone .label{display:inline-flex;align-items:center;gap:9px}
-.chev{width:12px;height:12px;stroke:var(--muted);stroke-width:1.9;fill:none;transform:rotate(0deg);transition:transform .17s}
-.milestone[open] .chev{transform:rotate(90deg)}
-.milestone .track{pointer-events:none}
-.details{display:flex;gap:18px;flex-wrap:wrap;padding-top:13px;margin-top:11px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
-.details strong{color:var(--fg);font-weight:600}
-footer{border-top:1px solid var(--line);margin-top:51px;padding-top:18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:11px}
-.state{min-height:17px}.state.error{color:#ffaaa7}.state.ok{color:var(--muted)}
-.note{font-size:11px;margin:10px 0 0;color:var(--muted);line-height:1.6}
-@keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:520px){main{width:calc(100vw - 40px);padding-top:32px}h1{margin-top:53px}.tagline{margin-bottom:54px}.refresh{padding:8px 10px}.details{gap:12px}.milestone{margin-left:-10px;margin-right:-10px;padding-left:10px;padding-right:10px}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+:root{
+  --bg:#F0F3F5;--ink:#182731;--body:#36444c;--dim:#5d6870;
+  --panel:#F0F3F5;--accent:#F50057;--accent-base:#F50057;
+  --hair:#1827314d;--soft:#1827310f;--grid:#18273109;--track:#18273125;
+  --inactive:#6f7d86;--active-text:#182731;--hover-bg:#18273108;
+  color-scheme:light
+}
+:root[data-theme="dark"]{
+  --bg:#182731;--ink:#F0F3F5;--body:#d4d8dc;--dim:#afb6ba;
+  --panel:#1d2c36;--hair:#F0F3F547;--soft:#F0F3F512;
+  --grid:#F0F3F508;--track:#F0F3F52A;--inactive:#a3b2bc;
+  --active-text:#F0F3F5;--hover-bg:#F0F3F50A;
+  color-scheme:dark
+}
+*,*::before,*::after{box-sizing:border-box}
+html{min-height:100%;background:var(--bg);scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:15px/1.5 'Space Grotesk',system-ui,sans-serif;transition:background-color .24s,color .24s}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+ background-image:linear-gradient(to right,var(--grid) 1px,transparent 1px),linear-gradient(to bottom,var(--grid) 1px,transparent 1px);background-size:44px 44px}
+button{font:inherit}
+a{color:inherit}
+.shell{width:min(860px,calc(100% - 72px));margin-inline:auto}
+.site-head{border-bottom:1px solid var(--hair)}
+.nav{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:inline-flex;align-items:center;gap:11px;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:.02em}
+.brand-mark{height:20px;width:20px;display:inline-block;flex:none;background:var(--accent);transition:transform .2s ease;transform-origin:center}
+.brand:hover .brand-mark{transform:rotate(90deg)}
+.nav-actions{display:flex;align-items:center;gap:18px}
+.back{font:500 10px/1.3 'JetBrains Mono',monospace;letter-spacing:.10em;text-decoration:none;color:var(--dim);transition:color .18s}
+.back:hover{color:var(--accent)}
+.theme-toggle{display:grid;place-items:center;width:35px;height:35px;border:1.5px solid var(--ink);background:var(--panel);color:var(--ink);cursor:pointer;
+ transition:background .18s,color .18s,border-color .18s,transform .18s}
+.theme-toggle:hover{background:var(--accent);color:#fff;border-color:var(--accent);transform:translateY(-2px)}
+.theme-toggle:focus-visible,.back:focus-visible,.brand:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.theme-toggle svg{height:16px;width:16px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+[data-theme="dark"] .sun{display:block}[data-theme="dark"] .moon{display:none}
+[data-theme="light"] .sun{display:none}[data-theme="light"] .moon{display:block}
+main{padding-top:clamp(68px,12vh,120px);padding-bottom:110px}
+.eyebrow{font:500 11px/1.5 'JetBrains Mono',monospace;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;display:flex;align-items:center;gap:12px}
+.eyebrow::before{content:"";display:block;width:20px;height:3px;background:var(--accent)}
+h1{font-weight:700;font-size:clamp(68px,13vw,116px);letter-spacing:-.085em;line-height:.96;margin:22px 0 15px}
+h1 span{color:var(--accent)}
+.subhead{margin:0;color:var(--body);font-size:14px}
+.progress-area{margin-top:clamp(56px,11vh,93px)}
+.overall{padding-bottom:49px;border-bottom:1px solid var(--hair)}
+.line{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.label{font-weight:700;font-size:15px;letter-spacing:-.015em}
+.pct{font-weight:700;font-size:18px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.overall .pct{color:var(--accent);font-size:22px}
+.track{height:8px;background:var(--track);position:relative;overflow:hidden;margin-top:14px;border-radius:0}
+.track::after{content:"";pointer-events:none;position:absolute;inset:0;border:1px solid transparent;transition:border-color .2s}
+.fill{height:100%;background:var(--inactive);width:0%;transition:width .85s cubic-bezier(.2,.8,.2,1),background-color .3s}
+.overall .track{height:12px;margin-top:16px}
+.overall .fill{background:var(--accent)}
+.overall:hover .track::after{border-color:var(--accent)}
+.overall:hover .fill{filter:brightness(1.12)}
+.count{margin-top:12px;color:var(--dim);font:500 11px/1.5 'JetBrains Mono',monospace;font-variant-numeric:tabular-nums}
+.group-label{margin:32px 0 14px;color:var(--dim);font:500 10px/1.5 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase}
+.milestones{display:grid;gap:4px}
+.milestone{margin:0 -18px;padding:17px 18px 16px;border-left:3px solid transparent;transition:background-color .18s,border-color .18s,transform .18s}
+.milestone:hover,.milestone:focus-within{background:var(--hover-bg);border-left-color:var(--accent);transform:translateX(3px)}
+.milestone[open]{background:var(--soft);border-left-color:var(--accent)}
+.milestone summary{cursor:pointer;list-style:none;outline:none}
+.milestone summary::-webkit-details-marker{display:none}
+.milestone summary:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
+.milestone .line{align-items:center}
+.milestone .label{display:inline-flex;align-items:center;gap:11px;font-size:14px;transition:color .2s}
+.milestone:hover .label,.milestone[open] .label{color:var(--accent)}
+.milestone .pct{font-size:14px;transition:color .2s}
+.milestone:hover .pct,.milestone[open] .pct{color:var(--accent)}
+.chevron{width:13px;height:13px;stroke:var(--dim);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;fill:none;transition:transform .2s,stroke .2s}
+.milestone:hover .chevron,.milestone[open] .chevron{stroke:var(--accent)}
+.milestone[open] .chevron{transform:rotate(90deg)}
+.milestone .track{height:7px;margin-top:12px}
+.milestone:hover .fill,.milestone[open] .fill{background:var(--accent)}
+.milestone:hover .track::after{border-color:var(--accent)}
+.details{display:flex;flex-wrap:wrap;gap:24px;margin-top:16px;padding-top:13px;border-top:1px solid var(--hair);color:var(--dim);font:500 10px/1.6 'JetBrains Mono',monospace}
+.details strong{font-weight:600;color:var(--ink)}
+.end{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;border-top:1px solid var(--hair);margin-top:45px;padding-top:20px;color:var(--dim)}
+.stamp,.footnote{font:400 10px/1.7 'JetBrains Mono',monospace}
+.stamp{font-variant-numeric:tabular-nums}.footnote{text-align:right}
+.footnote a{text-decoration:none;border-bottom:1px solid var(--hair);transition:color .2s,border-color .2s}
+.footnote a:hover{color:var(--accent);border-color:var(--accent)}
+.error{color:var(--accent)}
+@media(max-width:650px){
+ .shell{width:calc(100% - 40px)}
+ .nav{min-height:65px}
+ .nav-actions{gap:12px}
+ .brand{font-size:12px}
+ h1{font-size:clamp(64px,17vw,90px)}
+ main{padding-top:75px}
+ .progress-area{margin-top:65px}
+ .milestone{margin:0 -11px;padding:16px 11px}
+ .milestone:hover,.milestone:focus-within{transform:none}
+ .end{flex-direction:column;align-items:flex-start}
+ .footnote{text-align:left}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
 </style>
 </head>
 <body>
-<main>
-<header>
-<a class="back" href="/">← AKASH SEAM</a>
-<button type="button" id="refresh" class="refresh" title="Reload the latest published progress (not a direct ClickUp sync)" aria-label="Refresh published progress">
-<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 18.7 7.7L20 12M4 12l1.3 4.3A7 7 0 0 0 18.4 15"/></svg>
-<span>Refresh</span>
-</button>
+<header class="site-head">
+  <div class="shell nav">
+    <a class="brand" href="/" aria-label="Akash Seam portfolio"><span class="brand-mark" aria-hidden="true"></span>AKASH SEAM</a>
+    <div class="nav-actions">
+      <a class="back" href="/">← PORTFOLIO</a>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch theme" title="Switch theme">
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.8"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.8A8.8 8.8 0 0 1 9.2 3.5a8.8 8.8 0 1 0 11.3 11.3Z"/></svg>
+      </button>
+    </div>
+  </div>
 </header>
-<h1>MORPH<span>.</span></h1>
-<p class="tagline">Development progress</p>
-
-<section class="overall" data-stage="overall" aria-label="Overall task progress">
-<div class="line"><span class="label">Overall</span><output class="pct">2.1%</output></div>
-<div class="track" role="progressbar" aria-label="Overall progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="2.1"><div class="fill" style="width:2.1%"></div></div>
-<div class="count">7 / 334 tasks complete</div>
-</section>
-
-<section class="milestones" aria-label="Development milestones">
-<details class="milestone" data-stage="Pitch"><summary aria-label="Pitch details"><div class="line"><span class="label">Pitch <svg class="chev" viewBox="0 0 16 16"><path d="m5 3 5 5-5 5"/></svg></span><output class="pct">0%</output></div><div class="track" role="progressbar" aria-label="Pitch completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill"></div></div></summary><div class="details"><span><strong data-k="done">0</strong> completed</span><span><strong data-k="remaining">92</strong> remaining</span><span><strong data-k="total">92</strong> in scope</span></div></details>
-<details class="milestone" data-stage="Alpha"><summary aria-label="Alpha details"><div class="line"><span class="label">Alpha <svg class="chev" viewBox="0 0 16 16"><path d="m5 3 5 5-5 5"/></svg></span><output class="pct">0%</output></div><div class="track" role="progressbar" aria-label="Alpha completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill"></div></div></summary><div class="details"><span><strong data-k="done">0</strong> completed</span><span><strong data-k="remaining">117</strong> remaining</span><span><strong data-k="total">117</strong> in scope</span></div></details>
-<details class="milestone" data-stage="Beta"><summary aria-label="Beta details"><div class="line"><span class="label">Beta <svg class="chev" viewBox="0 0 16 16"><path d="m5 3 5 5-5 5"/></svg></span><output class="pct">0%</output></div><div class="track" role="progressbar" aria-label="Beta completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill"></div></div></summary><div class="details"><span><strong data-k="done">0</strong> completed</span><span><strong data-k="remaining">76</strong> remaining</span><span><strong data-k="total">76</strong> in scope</span></div></details>
-<details class="milestone" data-stage="Full Release"><summary aria-label="Full Release details"><div class="line"><span class="label">Full Release <svg class="chev" viewBox="0 0 16 16"><path d="m5 3 5 5-5 5"/></svg></span><output class="pct">0%</output></div><div class="track" role="progressbar" aria-label="Full Release completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill"></div></div></summary><div class="details"><span><strong data-k="done">0</strong> completed</span><span><strong data-k="remaining">18</strong> remaining</span><span><strong data-k="total">18</strong> in scope</span></div></details>
-</section>
-<footer><span id="stamp">Saved ClickUp snapshot · Oct 29, 2026</span><span class="state" id="state" role="status" aria-live="polite"></span></footer>
-<p class="note">Progress reflects completed tasks, not a percentage of game production. Select a stage to view counts.</p>
+<main class="shell">
+  <div class="eyebrow">GAME DEV / PROGRESS</div>
+  <h1>MORPH<span>.</span></h1>
+  <p class="subhead">Development progress, measured one task at a time.</p>
+  <div class="progress-area">
+    <section class="overall" data-stage="overall" aria-label="Overall task completion">
+      <div class="line"><span class="label">Overall progress</span><output class="pct">2.1%</output></div>
+      <div class="track" role="progressbar" aria-label="Overall task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="2.1"><div class="fill" style="width:2.1%"></div></div>
+      <div class="count">7 / 334 tasks completed</div>
+    </section>
+    <div class="group-label">MILESTONES · CLICK TO EXPAND</div>
+    <section class="milestones" aria-label="Development milestones">
+      <details class="milestone" data-stage="Pitch">
+        <summary><div class="line"><span class="label">Pitch <svg class="chevron" viewBox="0 0 16 16"><path d="m5 3 5 5-5 5"/></svg></span><output class="pct">0%</output></div><div class="track" role="progressbar" aria-label="Pitch task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill"></div></div></summary>
+        <div class="details"><span><strong data-k="done">0</strong> COMPLETED</span><span><strong data-k="remaining">92</strong> REMAINING</span><span><strong data-k="total">92</strong> TOTAL</span></div>
+      </details>
+      <details class="milestone" data-stage="Alpha">
+        <summary><div class="line"><span class="label">Alpha <svg class="chevron" viewBox="0 0 16 16"><path d="m5 3 5 5-5 5"/></svg></span><output class="pct">0%</output></div><div class="track" role="progressbar" aria-label="Alpha task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill"></div></div></summary>
+        <div class="details"><span><strong data-k="done">0</strong> COMPLETED</span><span><strong data-k="remaining">117</strong> REMAINING</span><span><strong data-k="total">117</strong> TOTAL</span></div>
+      </details>
+      <details class="milestone" data-stage="Beta">
+        <summary><div class="line"><span class="label">Beta <svg class="chevron" viewBox="0 0 16 16"><path d="m5 3 5 5-5 5"/></svg></span><output class="pct">0%</output></div><div class="track" role="progressbar" aria-label="Beta task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill"></div></div></summary>
+        <div class="details"><span><strong data-k="done">0</strong> COMPLETED</span><span><strong data-k="remaining">76</strong> REMAINING</span><span><strong data-k="total">76</strong> TOTAL</span></div>
+      </details>
+      <details class="milestone" data-stage="Full Release">
+        <summary><div class="line"><span class="label">Full Release <svg class="chevron" viewBox="0 0 16 16"><path d="m5 3 5 5-5 5"/></svg></span><output class="pct">0%</output></div><div class="track" role="progressbar" aria-label="Full Release task completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="fill"></div></div></summary>
+        <div class="details"><span><strong data-k="done">0</strong> COMPLETED</span><span><strong data-k="remaining">18</strong> REMAINING</span><span><strong data-k="total">18</strong> TOTAL</span></div>
+      </details>
+    </section>
+    <footer class="end">
+      <span id="stamp" class="stamp">Saved ClickUp snapshot · October 29, 2026</span>
+      <span class="footnote">TASK COMPLETION, NOT GAME COMPLETION</span>
+    </footer>
+  </div>
 </main>
 <script>
-(()=>{"use strict";
-const stages=["Pitch","Alpha","Beta","Full Release"],refresh=document.getElementById("refresh"),state=document.getElementById("state");
-let lastData=null,inFlight=false,lastManual=0;
-const percent=(d,t)=>t>0?Math.min(100,Math.max(0,100*d/t)):0;
-function update(stage,record){
-  if(!record)return;
-  const el=document.querySelector('[data-stage="'+stage+'"]');if(!el)return;
-  const done=Math.max(0,Number(record.done)||0),total=Math.max(0,Number(record.total)||0),value=Math.round(percent(done,total)*10)/10;
-  el.querySelector(".pct").textContent=value.toFixed(Number.isInteger(value)?0:1)+"%";
-  const track=el.querySelector(".track");track.setAttribute("aria-valuenow",String(value));track.querySelector(".fill").style.width=value+"%";
-  if(stage==="overall"){el.querySelector(".count").textContent=done+" / "+total+" tasks complete";}
-  else for(const [key,num] of Object.entries({done,remaining:Math.max(0,total-done),total})){const child=el.querySelector('[data-k="'+key+'"]');if(child)child.textContent=String(num);}
-}
-function setState(message,error=false){state.textContent=message;state.className="state "+(error?"error":"ok");}
-async function load(manual){
-  if(inFlight)return;
-  if(manual&&Date.now()-lastManual<4000){setState("Already checked just now");return;}
-  inFlight=true;refresh.disabled=true;refresh.classList.add("is-loading");
-  if(manual){lastManual=Date.now();setState("Checking…");}
-  try{
-    const response=await fetch("./progress.json?t="+Date.now(),{cache:"no-store"});
-    if(!response.ok)throw Error("HTTP "+response.status);
-    const data=await response.json();
-    if(!data||!data.overall||!data.stages||!Number.isFinite(Number(data.overall.total)))throw Error("Invalid progress data");
-    const changed=!lastData||JSON.stringify(lastData.overall)!==JSON.stringify(data.overall)||JSON.stringify(lastData.stages)!==JSON.stringify(data.stages)||lastData.updatedAt!==data.updatedAt;
-    lastData=data;
-    update("overall",data.overall);
-    for(const stage of stages)update(stage,data.stages[stage]);
-    const date=data.updatedAt?new Date(data.updatedAt):null;
-    const valid=date&&!Number.isNaN(date.getTime());
-    document.getElementById("stamp").textContent=valid?"ClickUp data updated · "+date.toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"}):"Saved ClickUp snapshot";
-    if(manual)setState(changed?"Latest published data loaded":"No newer published data");
-    else setState("");
-  }catch(err){setState("Couldn't check for updates",true);}
-  finally{inFlight=false;refresh.disabled=false;refresh.classList.remove("is-loading");}
-}
-refresh.addEventListener("click",()=>load(true));load(false);
+(()=>{
+  'use strict';
+  const root=document.documentElement;
+  const toggle=document.getElementById('theme-toggle');
+  const theme=()=>root.dataset.theme==='dark'?'dark':'light';
+  function syncToggle(){
+    const label=theme()==='dark'?'Switch to light mode':'Switch to dark mode';
+    toggle.setAttribute('aria-label',label);
+    toggle.title=label;
+  }
+  syncToggle();
+  toggle.addEventListener('click',()=>{
+    const next=theme()==='dark'?'light':'dark';
+    root.dataset.theme=next;
+    root.style.colorScheme=next;
+    try{localStorage.setItem('akash-theme',next)}catch{}
+    syncToggle();
+  });
+  function update(stage,record){
+    if(!record)return;
+    const row=document.querySelector('[data-stage="'+stage+'"]');
+    if(!row)return;
+    const done=Math.max(0,Number(record.done)||0), total=Math.max(0,Number(record.total)||0);
+    const ratio=total?Math.max(0,Math.min(100,done/total*100)):0;
+    const rounded=Math.round(ratio*10)/10;
+    row.querySelector('.pct').textContent=rounded.toFixed(Number.isInteger(rounded)?0:1)+'%';
+    const bar=row.querySelector('.track');
+    bar.setAttribute('aria-valuenow',String(rounded));
+    bar.querySelector('.fill').style.width=ratio+'%';
+    if(stage==='overall'){
+      row.querySelector('.count').textContent=done+' / '+total+' tasks completed';
+    }else{
+      for(const [key,value] of Object.entries({done,remaining:Math.max(0,total-done),total})){
+        row.querySelector('[data-k="'+key+'"]').textContent=String(value);
+      }
+    }
+  }
+  fetch('./progress.json',{cache:'no-store'})
+    .then(response=>{if(!response.ok)throw Error('HTTP '+response.status);return response.json()})
+    .then(data=>{
+      if(!data||!data.overall||!data.stages)throw Error('Missing progress data');
+      update('overall',data.overall);
+      for(const stage of ['Pitch','Alpha','Beta','Full Release'])update(stage,data.stages[stage]);
+      if(data.updatedAt){
+        const date=new Date(data.updatedAt);
+        if(!Number.isNaN(date.getTime())){
+          document.getElementById('stamp').textContent='ClickUp data · '+date.toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});
+        }
+      }
+    })
+    .catch(()=>{
+      const label=document.getElementById('stamp');
+      label.classList.add('error');
+      label.textContent='Latest progress unavailable · displaying saved snapshot';
+    });
 })();
 </script>
 </body>

@@ -1,11 +1,15 @@
-# Morph — Development Progress
+# Morph development progress
 
-Public: https://akashseamportfolio.github.io/morph/
+Live page: https://akashseamportfolio.github.io/morph/
 
-This is a minimalist accessible GitHub Pages display showing one overall loading bar and four milestone bars. Each stage is expandable to show completed / remaining / total tasks. A small top-right **Refresh** button fetches the latest **published** `progress.json` without browser caching.
+Minimal progress dashboard for the Morph game project, styled to match the portfolio's current color palette and typography. Shares the portfolio's `akash-theme` light/dark preference. Hovering over a milestone highlights it; clicking it expands the completed, remaining and total task counts. No redundant refresh button.
 
-**Important**: Refreshing the public JSON is not equivalent to fetching live ClickUp tasks. GitHub Pages is a static site. A true per-click ClickUp refresh for all anonymous visitors requires a separately hosted protected endpoint (for example a Cloudflare Worker or Vercel serverless function) with the ClickUp credential stored as a server-side secret, rate limiting and caching. Never put a ClickUp token in public HTML, JSON, JavaScript or source code.
+### Data and privacy
 
-The GitHub Actions workflow `.github/workflows/morph-progress.yml` refreshes the published aggregate data approximately every 2 hours when `CLICKUP_API_TOKEN` is configured in repository Secrets and Pages is deployed via GitHub Actions. The public site only exposes aggregate values, never task details. If the workflow is not configured, the page shows the last committed snapshot.
+This is a public GitHub Pages site. It loads the aggregate-only `progress.json` created by the private ClickUp sync. It does not and must not include a ClickUp personal token in HTML, JS, git history, or public JSON.
 
-Progress numerator is tasks in COMPLETE status; the `Suggested Stage` field determines stage grouping. JUICE and DEFFERED aren't completed status values. These are task-count percentages, not game-completion estimates.
+GitHub Actions workflow: `.github/workflows/morph-progress.yml`. It runs roughly every two hours and deploys the current portfolio with new aggregate counts when the repository secret `CLICKUP_API_TOKEN` has been configured. **The token has not been configured by ChatGPT**; connected GitHub tools cannot manage Actions secrets. Until the repository owner adds a freshly rotated token as that secret, scheduled syncs fail safely and the page shows its last saved snapshot.
+
+ClickUp's personal token was pasted into a chat on 2026-10-29. Rotate/revoke it and use a new token only in GitHub's Actions secret settings: https://github.com/akashseamportfolio/akashseamportfolio.github.io/settings/secrets/actions. Never publish that token.
+
+Progress: the numerator is tasks completed/closed, stages use the `Suggested Stage` custom field, JUICE and DEFFERED remain separate statuses rather than completed states. Percentages represent task counts, not percentage of the overall development effort.
