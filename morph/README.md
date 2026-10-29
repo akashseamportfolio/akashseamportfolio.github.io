@@ -1,17 +1,20 @@
 # Morph development progress
 
-Public page: https://akashseamportfolio.github.io/morph/
+Public URL: https://akashseamportfolio.github.io/morph/
 
-The public page uses `morph/index.html` and `morph/progress.json`. The JSON contains only aggregate progress counts: no task names, descriptions or API credentials.
+This page has five minimal loading bars. It displays only aggregate counts from the ClickUp Morph List. No task names, descriptions, passwords, or ClickUp token are published.
 
-## Automatic updates
+## Automatic updates (no ChatGPT dependency)
 
-Progress is synchronized using a ChatGPT automation named **Sync Morph progress**, scheduled approximately every two hours. It uses the owner's connected ClickUp and GitHub apps to read tasks and commit updated aggregate totals to this repository.
+GitHub Actions owns the whole sync. The workflow at `.github/workflows/morph-progress.yml` runs on portfolio pushes, when manually requested, and approximately every two hours. It fetches ClickUp tasks into a temporary build copy of `morph/progress.json`, and deploys the *entire existing portfolio* plus the updated Morph page to GitHub Pages. No JSON commit to the default branch is necessary.
 
-GitHub Pages already deploys from the main branch, so publishing new progress data triggers the existing site deployment. No ClickUp API token, GitHub Actions secret or workflow configuration is required.
+**One-time setup by the repository owner**:
+1. In https://github.com/akashseamportfolio/akashseamportfolio.github.io/settings/secrets/actions add a repository secret named `CLICKUP_API_TOKEN` containing your ClickUp personal API token. Keep this private.
+2. In https://github.com/akashseamportfolio/akashseamportfolio.github.io/settings/pages set **Build and deployment → Source → GitHub Actions**.
+3. Run https://github.com/akashseamportfolio/akashseamportfolio.github.io/actions/workflows/morph-progress.yml with **Run workflow** once to confirm successful deployment.
 
-If the connected apps or the ChatGPT automation are disabled, the website continues displaying the last saved totals, but stops refreshing until the connection is restored.
+**Why the one-time settings are necessary**: A public GitHub Pages site cannot safely contain a private ClickUp token. The connected GitHub tools in ChatGPT cannot manage repository secrets or GitHub Pages source configuration. GitHub Pages branch publishing is not triggered by commits made with the built-in GitHub Actions `GITHUB_TOKEN`.
 
-Stage-specific percentages use the tasks' `Suggested Stage` values. The overall percentage counts tasks marked COMPLETE across the Morph List. JUICE and DEFFERED are separate statuses, not completed work.
+Until the workflow is successfully configured, the site continues displaying the last committed snapshot (7/334 tasks in the original snapshot). On any failed ClickUp request, a scheduled job stops rather than publishing fabricated totals. Existing portfolio pages, assets and routes are preserved.
 
-This page is a task-completion indicator, not an estimate of actual game-development effort.
+The `Suggested Stage` custom field determines Pitch, Alpha, Beta, and Full Release grouping. COMPLETE/closed controls the numerator. JUICE and DEFFERED are not counted as completed. This is a task completion measurement, not a game effort estimate.

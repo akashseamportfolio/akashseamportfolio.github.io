@@ -1,0 +1,49 @@
+name: Deploy portfolio & sync Morph progress
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */2 * * *'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: morph-portfolio-pages
+  cancel-in-progress: false
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout portfolio
+        uses: actions/checkout@v4
+      - name: Refresh Morph totals from ClickUp
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [[ -n "$CLICKUP_API_TOKEN" ]]; then
+            python3 morph/sync_clickup.py
+          elif [[ "$EVENT_NAME" == "schedule" ]]; then
+            echo '::error::Missing CLICKUP_API_TOKEN repository secret. Scheduled refresh cannot run.'
+            exit 1
+          else
+            echo '::warning::CLICKUP_API_TOKEN not configured. Publishing the last committed Morph snapshot.'
+          fi
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload entire portfolio (including refreshed Morph numbers)
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: '.'
+      - name: Publish GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
