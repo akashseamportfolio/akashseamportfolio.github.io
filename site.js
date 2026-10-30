@@ -83,7 +83,7 @@ document.querySelectorAll('.work-menu').forEach(menu=>{
   const narrow=vw<580,width=narrow?Math.floor((vw-24)/2):240,subWidth=narrow?vw-24-width:280;
   const left=narrow?12:Math.max(12,Math.min(trigger.right-width,vw-width-12)),top=Math.max(12,Math.min(trigger.bottom+4,vh-100));
   const count=Math.max(1,Math.min(6,Math.floor((vh-top-70)/44)));
-  groups.forEach((g,i)=>{g.hidden=i>=count;g.querySelectorAll('.work-group-projects a:not(.work-more)').forEach((a,j)=>a.hidden=j>=Math.max(0,count-1));});
+  groups.forEach((g,i)=>{g.hidden=i>=count;const links=[...g.querySelectorAll('.work-group-projects a:not(.work-more)')],more=g.querySelector('.work-more');links.forEach((a,j)=>a.hidden=j>=count);if(more){more.dataset.fullLabel ||= more.textContent;more.textContent=links.some(a=>a.hidden)?'And more ↗':more.dataset.fullLabel;}});
   panel.classList.toggle('submenu-left',!narrow&&left+width+subWidth>vw-12);
   panel.style.setProperty('--submenu-width',subWidth+'px');
   Object.assign(panel.style,{position:'fixed',left:left+'px',right:'auto',top:top+'px',width:width+'px',maxHeight:'none'});
@@ -126,6 +126,16 @@ const siteHeader=document.querySelector('.site-header');if(siteHeader){const mea
  cards.forEach(card=>{
   const button=card.querySelector('.portrait-toggle'),turn=card.querySelector('.portrait-turn'),front=card.querySelector('.portrait-front'),back=card.querySelector('.portrait-back'),photo=back.querySelector('img');
   let angle=180,frame=0,available=true,gesture=null,suppressClickUntil=0,targetAngle=180;
+  // A short, in-view touch introduction; desktop hints only appear on hover/focus.
+  let hintTimer;
+  const dismissHint=()=>{clearTimeout(hintTimer);card.classList.remove('hint-visible');};
+  if(window.matchMedia('(hover: none)').matches){
+   const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){card.classList.add('hint-visible');hintTimer=setTimeout(dismissHint,4000);observer.disconnect();}},{threshold:.6});
+   observer.observe(card);
+  }
+  button.addEventListener('pointerdown',dismissHint);
+  button.addEventListener('click',dismissHint);
+
   function draw(){turn.style.transform='rotateY('+angle+'deg)';}
   function stop(){cancelAnimationFrame(frame);frame=0;}
   function settle(target){stop();angle=((target%360)+360)%360;draw();const photoVisible=Math.round(angle/180)%2===1;front.setAttribute('aria-hidden',String(photoVisible));back.setAttribute('aria-hidden',String(!photoVisible));button.setAttribute('aria-pressed',String(photoVisible));}
@@ -197,3 +207,5 @@ const siteHeader=document.querySelector('.site-header');if(siteHeader){const mea
 
 // Native image/link dragging competes with the portrait's held-pointer gestures.
 document.addEventListener('dragstart',event=>{if(!event.target.closest('input,textarea,[contenteditable="true"]'))event.preventDefault();});
+// Reading aids appear only on project pages. The gradient follows the page theme.
+(()=>{const page=document.querySelector('.case-page');if(!page)return;const top=page.querySelector('.case-back-top'),hint=page.querySelector('.case-scroll-hint');let pending=false;function measure(){pending=false;const root=document.documentElement,bottom=window.scrollY+window.innerHeight>=root.scrollHeight-8;if(top)top.hidden=window.scrollY<300;if(hint)hint.classList.toggle('at-bottom',bottom)}function schedule(){if(!pending){pending=true;requestAnimationFrame(measure)}}window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);if(typeof ResizeObserver!=='undefined')new ResizeObserver(schedule).observe(document.body);measure();})();

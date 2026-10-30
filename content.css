@@ -175,3 +175,27 @@ body{-webkit-user-select:none;user-select:none}input,textarea,[contenteditable="
 .all-work-link,.all-work-link:hover,.all-work-link:focus-visible{color:#fff}
 .work-dropdown:not([hidden]){animation:work-menu-enter .18s ease-out}
 @keyframes work-menu-enter{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+/* Quiet feedback while pressing controls, without moving surrounding content. */
+:where(a,button,summary,[role="button"]):active{filter:brightness(.86);text-decoration-thickness:2px}
+:where(button,.case-play,.all-work-link,.contact-card):active{box-shadow:inset 0 0 0 2px currentColor}
+.portrait-toggle:active{box-shadow:none;filter:none;cursor:grabbing}
+.case-intro>.layout-block:has(.case-facts){margin-top:32px}
+.case-intro .case-facts{margin:0;padding-top:24px;border-top:1px solid var(--hair);grid-template-columns:1.2fr 1.2fr 1fr;gap:24px}
+.case-intro figure img{width:100%;height:auto;display:block;border:1px solid var(--hair)}
+.case-back-top{position:fixed;right:max(20px,env(safe-area-inset-right));bottom:max(20px,env(safe-area-inset-bottom));z-index:70;display:grid;place-items:center;width:46px;height:46px;border:2px solid var(--ink);background:var(--bg);color:var(--ink);text-decoration:none;font-size:25px;box-shadow:3px 3px 0 var(--soft)}
+.case-back-top[hidden]{display:none}.case-back-top:hover{background:var(--ink);color:var(--bg)}
+.case-scroll-hint{position:fixed;bottom:0;left:0;right:0;height:44px;z-index:60;pointer-events:none;background:linear-gradient(to bottom,transparent,var(--bg));opacity:1;transition:opacity .15s}
+.case-scroll-hint.at-bottom{opacity:0}
+@media(max-width:620px){.case-intro .case-facts{grid-template-columns:1fr}.case-back-top{width:44px;height:44px;right:14px;bottom:14px}.case-scroll-hint{height:30px}}
+@media(prefers-reduced-motion:reduce){.case-scroll-hint{transition:none}}
+.case-ending{padding-top:0;padding-bottom:40px}.case-ending .case-details{margin-top:0}.case-intro .content-media img{max-height:70vh;object-fit:contain;object-position:left center}.skill-label{position:relative}.skill-row:target,.skill-row:has(.skill-anchor:target){outline:2px solid var(--accent);outline-offset:5px}.skill-anchor{scroll-margin-top:110px}@media(max-width:700px){.case-intro .content-media img{max-height:60vh}.case-ending{padding-bottom:24px}}
+.portrait-hint{position:absolute;top:calc(100% + 10px);left:0;width:100%;text-align:center;font:11px 'JetBrains Mono',monospace;color:var(--ink);opacity:0;pointer-events:none;transition:opacity .16s ease}.portrait-toggle:focus-visible~.portrait-hint{opacity:.8}@media(hover:hover){.portrait-flip:hover .portrait-hint{opacity:.8}}@media(hover:none){.portrait-flip.hint-visible .portrait-hint{opacity:.8}}.case-story li{margin-bottom:1em;line-height:1.7}.case-story li strong{font-weight:700}
+
+.portrait-demo{max-width:360px;margin:28px auto}.portrait-demo .portrait{aspect-ratio:1;padding:12px;display:grid;place-items:center}.portrait-demo .portrait-photo{width:100%;height:100%;object-fit:cover;min-height:0}.portrait-demo .portrait-initials{font-size:100px}.portrait-demo figcaption{margin-top:20px}.case-story .content-gallery{align-items:start}
+
+.portrait-demo .portrait{min-height:0}.portrait-demo .portrait-initials{width:100%;height:100%;min-height:0;aspect-ratio:auto}
+
+/* Shared with the Morph progress page. */
+.brand-mark{transition:transform .2s ease;transform-origin:center}.brand:hover .brand-mark,.brand:focus-visible .brand-mark{transform:rotate(90deg)}
+@media(prefers-reduced-motion:reduce){.brand-mark{transition:none;transform:none!important}}
+.case-subheading{font-size:clamp(18px,2vw,23px)!important;line-height:1.45!important;color:var(--dim);margin-top:-8px;margin-bottom:28px!important}.case-summary-parts{max-width:840px;margin:28px 0 36px}.case-summary-parts h2{font-size:16px;margin:20px 0 8px}.case-summary-parts p{font-size:18px;line-height:1.7}.case-facts dd p{margin:0}.case-facts dd a{text-underline-offset:4px}.case-facts dd a:hover{color:var(--accent)}
