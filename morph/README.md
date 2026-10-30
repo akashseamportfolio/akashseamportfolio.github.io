@@ -17,9 +17,11 @@ Do not paste a ClickUp token into this repository, public page, or JSON. Without
 
 Use the built-in **Tags** field to assign one stage tag to each task: `Pitch`, `Alpha`, `Beta`, or `Full Release`. The sync also accepts labels such as `Pitch Stage` or `Stage: Pitch` (case-insensitive).
 
-Tags take priority over the legacy `Suggested Stage` custom field, which may not be editable on the Free plan. Existing untagged backlog tasks retain their old stage assignments through that field, so their counts do not reset. Add only one stage tag per task; multiple conflicting stage tags cause the task to be unassigned.
+**Tags are the only stage assignment source.** The ClickUp custom fields were not imported on the Free plan and the sync does not inspect them. Add one stage tag per task; untagged tasks or tasks with conflicting stage tags remain unassigned.
 
-Mark the task **Complete** to count it as finished. JUICE and DEFFERED are not completion statuses. Percentages reflect tasks, not total development effort.
+Until the entire backlog is tagged, the four milestone denominators use the original approximate roadmap allocations: **Pitch 92, Alpha 117, Beta 76, Full Release 18**. These are *planning targets*, not verified counts of tagged tasks. The numerator is the live count of **Complete** tasks with each stage tag. Stage totals only increase automatically if the number of tasks tagged for that stage exceeds its estimate, preventing progress from exceeding 100%. Thus, changing a stage tag updates the stage numerator and task membership, but does not lower the estimated target. This avoids double-counting tasks as tags are applied over time. The totals are configurable in `PLANNED_STAGE_TOTALS` in `morph/sync_clickup.py`.
+
+Overall progress continues to use **all** tasks and their real completion statuses, tagged or not. JUICE and DEFFERED are not completion statuses. The `unassigned` field in the JSON counts tasks without exactly one recognized stage tag and does not subtract from the four planning targets. Percentages measure task counts, not effort.
 
 ## Automatic synchronization
 
