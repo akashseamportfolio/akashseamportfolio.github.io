@@ -1,7 +1,7 @@
-import {renderHome,renderWork,renderContact,renderSkills,renderProject,validate,escape} from './runtime.js?v=64b954a01ab6';
-import {templates} from './templates.js?v=64b954a01ab6';
-export function renderPages(data){validate(data);return new Map([['index.html',renderHome(data,templates)],['work/index.html',renderWork(data,templates)],['contact/index.html',renderContact(data,templates)],['skills/index.html',renderSkills(data,templates)],...data.projects.filter(p=>p.status==='published'&&p.pageEnabled).map(p=>[p.slug+'/index.html',renderProject(data,p,templates)])]);}
-export function pageHtml(data,id){validate(data);if(id==='home')return renderHome(data,templates);if(id==='work')return renderWork(data,templates);if(id==='contact')return renderContact(data,templates);if(id==='skills')return renderSkills(data,templates);const p=data.projects.find(p=>p.id===id);if(!p)throw new Error('Project not found.');p.status='published';p.pageEnabled=true;return renderProject(data,p,templates);}
+import {usesProjectPage,renderHome,renderWork,renderContact,renderSkills,renderProject,validate,escape} from './runtime.js?v=2bacaea79263';
+import {templates} from './templates.js?v=2bacaea79263';
+export function renderPages(data){validate(data);return new Map([['index.html',renderHome(data,templates)],['work/index.html',renderWork(data,templates)],['contact/index.html',renderContact(data,templates)],['skills/index.html',renderSkills(data,templates)],...data.projects.filter(p=>p.status==='published'&&usesProjectPage(p)).map(p=>[p.slug+'/index.html',renderProject(data,p,templates)])]);}
+export function pageHtml(data,id,options={}){validate(data);if(id==='home')return renderHome(data,templates);if(id==='work')return renderWork(data,templates);if(id==='contact')return renderContact(data,templates);if(id==='skills')return renderSkills(data,templates);const p=data.projects.find(p=>p.id===id);if(!p)throw new Error('Project not found.');p.status='published';p.pageEnabled=true;return renderProject(data,p,templates,options);}
 export function cleanLinks(html,base='/'){
  if(!/^\/(?:[\w.-]+\/)*$/.test(base))throw new Error('Invalid site base path.');
  html=html.replace(/(["'])((?:[\w-]+)\.html)(#[^"']*)?\1/g,(_,quote,file,hash='')=>quote+base+(file==='index.html'?'':file.slice(0,-5)+'/')+hash+quote);
