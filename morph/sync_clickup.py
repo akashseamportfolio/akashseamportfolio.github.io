@@ -104,12 +104,32 @@ def main() -> None:
     stages = {name: {"done": 0, "total": 0} for name in STAGES}
     completed = 0
     unassigned = 0
+    # Aggregate-only diagnostics for completed tasks not assigned to a stage.
+    completed_unassigned = 0
+    completed_missing_field = 0
+    completed_empty_field = 0
+    completed_unmatched_field = 0
+    field_kind_count: dict[str, int] = {}
     for task in all_tasks.values():
         done = is_complete(task)
         completed += int(done)
         stage = get_stage(task)
         if stage is None:
             unassigned += 1
+            if done:
+                completed_unassigned += 1
+                fields = [field for field in task.get("custom_fields") or []
+                          if str(field.get("name", "")).casefold() == "suggested stage"]
+                if not fields:
+                    completed_missing_field += 1
+                elif all(field.get("value") in (None, "", []) for field in fields):
+                    completed_empty_field += 1
+                else:
+                    completed_unmatched_field += 1
+                    for field in fields:
+                        value = field.get("value")
+                        key = f"{field.get('type', 'unknown')}:{type(value).__name__}"
+                        field_kind_count[key] = field_kind_count.get(key, 0) + 1
         else:
             stages[stage]["total"] += 1
             stages[stage]["done"] += int(done)
@@ -124,6 +144,13 @@ def main() -> None:
     }
     DESTINATION.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Morph summary generated: {completed}/{len(all_tasks)}. Only aggregate totals are published.")
+    print("Morph stage audit (aggregate): "
+          f"{completed_unassigned} completed tasks have no resolved stage. "
+          f"missing-field={completed_missing_field}, "
+          f"empty-field={completed_empty_field}, "
+          f"unmatched-field={completed_unmatched_field}, "
+          f"unmatched-types={field_kind_count}")
+
 
 
 if __name__ == "__main__":
