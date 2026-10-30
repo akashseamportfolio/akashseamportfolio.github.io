@@ -18,13 +18,13 @@ concurrency:
 
 jobs:
   sync-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout portfolio
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Refresh Morph totals from ClickUp
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
@@ -39,11 +39,11 @@ jobs:
             echo '::warning::CLICKUP_API_TOKEN not configured. Publishing the last committed Morph snapshot.'
           fi
       - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
       - name: Upload entire portfolio (including refreshed Morph numbers)
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: '.'
       - name: Publish GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
