@@ -60,6 +60,23 @@ def is_complete(task: dict) -> bool:
 
 
 def get_stage(task: dict) -> str | None:
+    # Tags are editable on ClickUp Free. They take precedence over the
+    # legacy Suggested Stage field, which may be locked on the Free plan.
+    matches = set()
+    for tag in task.get("tags") or []:
+        name = tag.get("name", "") if isinstance(tag, dict) else str(tag)
+        normalized = " ".join(str(name).casefold().replace(":", " ").split())
+        if normalized.startswith("stage "):
+            normalized = normalized[6:]
+        if normalized.endswith(" stage"):
+            normalized = normalized[:-6]
+        for stage in STAGES:
+            if normalized == stage.casefold():
+                matches.add(stage)
+    if len(matches) == 1:
+        return next(iter(matches))
+    if len(matches) > 1:
+        return None
     for field in task.get("custom_fields") or []:
         if str(field.get("name", "")).casefold() != "suggested stage":
             continue
