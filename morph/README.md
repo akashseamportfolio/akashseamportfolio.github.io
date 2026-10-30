@@ -14,3 +14,7 @@ https://github.com/akashseamportfolio/akashseamportfolio.github.io/settings/secr
 The GitHub integration available to this deployment cannot create or modify Actions secrets. Do not paste a ClickUp token into this repository, public page, or JSON. Without the repository secret, the scheduled sync safely fails and the public page continues to display the previous published snapshot.
 
 Stages use the task's `Suggested Stage` field; completed tasks are in ClickUp's COMPLETE/closed state. JUICE and DEFFERED are not completion statuses. Percentages measure tasks, not total development effort.
+
+## Manual synchronization
+
+The small **SYNC** link in the dashboard opens the GitHub Actions workflow for repository owners. Use **Run workflow** there to start a fresh ClickUp sync. GitHub requires write access, which prevents anonymous visitors from generating API calls. The public page itself polls only its deployed aggregate `progress.json` every two minutes while the page is visible; no browser-side ClickUp credential is needed. The GitHub Actions scheduled sync remains active roughly every two hours. Avoid rerunning a previously successful job directly: doing so can create duplicate `github-pages` artifacts and fail at deploy. Instead use **Run workflow** to start a new run.
