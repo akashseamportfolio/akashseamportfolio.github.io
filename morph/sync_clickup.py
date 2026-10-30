@@ -17,6 +17,14 @@ from urllib.request import Request, urlopen
 
 LIST_ID = "1000450000001486"
 STAGES = ("Pitch", "Alpha", "Beta", "Full Release")
+# Original roadmap estimates. Until all tasks have stage tags, these are
+# planning denominators rather than counts of tasks currently carrying a tag.
+PLANNED_STAGE_TOTALS = {
+    "Pitch": 92,
+    "Alpha": 117,
+    "Beta": 76,
+    "Full Release": 18,
+}
 DESTINATION = Path(__file__).with_name("progress.json")
 
 
@@ -60,12 +68,17 @@ def is_complete(task: dict) -> bool:
 
 
 def get_stage(task: dict) -> str | None:
-    # Tags are editable on ClickUp Free. They take precedence over the
-    # legacy Suggested Stage field, which may be locked on the Free plan.
-    matches = set()
+    """Classify a task exclusively by its ClickUp Tags field.
+
+    A task with no stage tag, or with conflicting stage tags, stays
+    unassigned. We never use the locked Suggested Stage custom field.
+    """
+    matches: set[str] = set()
     for tag in task.get("tags") or []:
         name = tag.get("name", "") if isinstance(tag, dict) else str(tag)
-        normalized = " ".join(str(name).casefold().replace(":", " ").split())
+        normalized = " ".join(
+            str(name).casefold().replace(":", " ").replace("-", " ").split()
+        )
         if normalized.startswith("stage "):
             normalized = normalized[6:]
         if normalized.endswith(" stage"):
@@ -73,39 +86,7 @@ def get_stage(task: dict) -> str | None:
         for stage in STAGES:
             if normalized == stage.casefold():
                 matches.add(stage)
-    if len(matches) == 1:
-        return next(iter(matches))
-    if len(matches) > 1:
-        return None
-    for field in task.get("custom_fields") or []:
-        if str(field.get("name", "")).casefold() != "suggested stage":
-            continue
-        value = field.get("value")
-        if isinstance(value, dict):
-            value = value.get("id", value.get("name", value.get("orderindex")))
-        # ClickUp dropdowns can send a UUID, a numeric orderindex, or
-        # its string representation (e.g. "0"). Resolve all of them
-        # against the stage field's actual options before comparing names.
-        options = (field.get("type_config") or {}).get("options") or []
-        for option in options:
-            if value is not None and (
-                str(option.get("id")) == str(value)
-                or str(option.get("orderindex")) == str(value)
-            ):
-                value = option.get("name")
-                break
-        norm = str(value or "").casefold().replace(" ", "").strip()
-        for stage in STAGES:
-            if norm == stage.casefold().replace(" ", ""):
-                return stage
-    # Stage-specific TO DO status is an alternative when a custom field is blank.
-    status = status_label(task).casefold().replace("—", "-").replace("–", "-")
-    if status.startswith(("to do", "todo")):
-        for stage in STAGES:
-            if stage.casefold() in status:
-                return stage
-    return None
-
+    return next(iter(matches)) if len(matches) == 1 else None
 
 def main() -> None:
     token = os.environ.get("CLICKUP_API_TOKEN", "").strip()
@@ -125,38 +106,28 @@ def main() -> None:
     if not all_tasks:
         raise RuntimeError("No ClickUp tasks found; refusing to overwrite last good report")
 
-    stages = {name: {"done": 0, "total": 0} for name in STAGES}
+    stages = {name: {"done": 0, "total": planned} for name, planned in PLANNED_STAGE_TOTALS.items()}
+    tagged_counts = {name: 0 for name in STAGES}
     completed = 0
     unassigned = 0
-    # Aggregate-only diagnostics for completed tasks not assigned to a stage.
     completed_unassigned = 0
-    completed_missing_field = 0
-    completed_empty_field = 0
-    completed_unmatched_field = 0
-    field_kind_count: dict[str, int] = {}
     for task in all_tasks.values():
         done = is_complete(task)
         completed += int(done)
         stage = get_stage(task)
         if stage is None:
             unassigned += 1
-            if done:
-                completed_unassigned += 1
-                fields = [field for field in task.get("custom_fields") or []
-                          if str(field.get("name", "")).casefold() == "suggested stage"]
-                if not fields:
-                    completed_missing_field += 1
-                elif all(field.get("value") in (None, "", []) for field in fields):
-                    completed_empty_field += 1
-                else:
-                    completed_unmatched_field += 1
-                    for field in fields:
-                        value = field.get("value")
-                        key = f"{field.get('type', 'unknown')}:{type(value).__name__}"
-                        field_kind_count[key] = field_kind_count.get(key, 0) + 1
+            completed_unassigned += int(done)
         else:
-            stages[stage]["total"] += 1
+            tagged_counts[stage] += 1
             stages[stage]["done"] += int(done)
+
+    # Once the number of tagged tasks exceeds an original estimate, expand
+    # its denominator. This prevents counts or progress exceeding 100%.
+    for stage in STAGES:
+        stages[stage]["total"] = max(
+            PLANNED_STAGE_TOTALS[stage], tagged_counts[stage]
+        )
 
     summary = {
         "version": 1,
@@ -168,13 +139,15 @@ def main() -> None:
     }
     DESTINATION.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Morph summary generated: {completed}/{len(all_tasks)}. Only aggregate totals are published.")
-    print("Morph stage audit (aggregate): "
-          f"{completed_unassigned} completed tasks have no resolved stage. "
-          f"missing-field={completed_missing_field}, "
-          f"empty-field={completed_empty_field}, "
-          f"unmatched-field={completed_unmatched_field}, "
-          f"unmatched-types={field_kind_count}")
-
+    print(
+        "Morph tag-based stages: "
+        + ", ".join(
+            f"{stage}={stages[stage]['done']}/{stages[stage]['total']} "
+            f"(tagged={tagged_counts[stage]})"
+            for stage in STAGES
+        )
+        + f"; unassigned={unassigned}, completed_unassigned={completed_unassigned}."
+    )
 
 
 if __name__ == "__main__":
