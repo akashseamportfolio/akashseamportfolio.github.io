@@ -64,12 +64,19 @@ def get_stage(task: dict) -> str | None:
         if str(field.get("name", "")).casefold() != "suggested stage":
             continue
         value = field.get("value")
-        if not isinstance(value, str):
-            options = (field.get("type_config") or {}).get("options") or []
-            value = next(
-                (option.get("name") for option in options if option.get("id") == value or option.get("orderindex") == value),
-                None,
-            )
+        if isinstance(value, dict):
+            value = value.get("id", value.get("name", value.get("orderindex")))
+        # ClickUp dropdowns can send a UUID, a numeric orderindex, or
+        # its string representation (e.g. "0"). Resolve all of them
+        # against the stage field's actual options before comparing names.
+        options = (field.get("type_config") or {}).get("options") or []
+        for option in options:
+            if value is not None and (
+                str(option.get("id")) == str(value)
+                or str(option.get("orderindex")) == str(value)
+            ):
+                value = option.get("name")
+                break
         norm = str(value or "").casefold().replace(" ", "").strip()
         for stage in STAGES:
             if norm == stage.casefold().replace(" ", ""):
