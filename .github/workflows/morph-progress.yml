@@ -8,7 +8,7 @@ on:
     - cron: '11,41 * * * *'
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -37,6 +37,32 @@ jobs:
             exit 1
           else
             echo '::warning::CLICKUP_API_TOKEN not configured. Publishing the last committed Morph snapshot.'
+          fi
+      # Branch-based Pages deployments otherwise overwrite the refreshed
+      # artifact with the stale progress.json committed in main.
+      # Only commit when aggregate counts change, avoiding 48 commits/day.
+      - name: Save changed progress counts to the repository
+        run: |
+          if python3 - <<'PY'
+          import json
+          import subprocess
+          from pathlib import Path
+          new = json.loads(Path("morph/progress.json").read_text(encoding="utf-8"))
+          try:
+              old = json.loads(subprocess.check_output(["git", "show", "HEAD:morph/progress.json"]))
+          except (subprocess.CalledProcessError, json.JSONDecodeError):
+              old = {}
+          keys = ("overall", "stages", "unassigned")
+          raise SystemExit(0 if any(new.get(key) != old.get(key) for key in keys) else 1)
+          PY
+          then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add morph/progress.json
+            git commit -m "Update Morph progress snapshot [skip ci]"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          else
+            echo "Progress counts unchanged; no commit needed."
           fi
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v6
