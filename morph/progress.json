@@ -1,7 +1,7 @@
 {
   "version": 1,
   "source": "clickup",
-  "updatedAt": "2026-11-02T21:45:26.115Z",
+  "updatedAt": "2026-11-02T21:45:44+00:00",
   "overall": {
     "done": 15,
     "total": 338
@@ -9,11 +9,11 @@
   "stages": {
     "Pitch": {
       "done": 15,
-      "total": 103
+      "total": 104
     },
     "Alpha": {
       "done": 0,
-      "total": 117
+      "total": 116
     },
     "Beta": {
       "done": 0,
