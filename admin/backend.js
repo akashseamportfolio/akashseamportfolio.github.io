@@ -1,7 +1,7 @@
-import {mergeDrafts} from './draft-merge.js?v=2bacaea79263';
-import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=2bacaea79263';
-import {pageHtml,makePublicTextFiles} from './site.js?v=2bacaea79263';
-import {validate,normalize} from './runtime.js?v=2bacaea79263';
+import {mergeDrafts} from './draft-merge.js?v=8153e6ab51e0';
+import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=8153e6ab51e0';
+import {pageHtml,makePublicTextFiles} from './site.js?v=8153e6ab51e0';
+import {validate,normalize} from './runtime.js?v=8153e6ab51e0';
 const STATE='studio/state.json',FILES='studio/files/';
 const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',svg:'image/svg+xml',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav'};
 export function initialState(draft,published=draft){return {format:1,revision:0,draft:normalize(structuredClone(draft)),published:normalize(structuredClone(published)),savedAt:null,publishedAt:null};}
@@ -66,7 +66,7 @@ export class GitHubDesk{
   throw new Error('Unknown editor operation.');
  }
  async filesTree(){const head=await this.client.head(this.sourceRepo,this.sourceBranch);return (await this.client.tree(this.sourceRepo,head)).entries;}
- async fileBytes(url){if(this.mediaBytes.has(url))return this.mediaBytes.get(url);if(!/^(assets|media)\/[\w./-]+$/.test(url)||url.includes('..'))throw new Error('Invalid media reference.');const value=await this.client.file(this.sourceRepo,FILES+url);let content=value?.content;if(!content&&/^assets\/case-study\/[a-z0-9-]+\.jpg$/.test(url)){this.bundledMedia??=await this.localJson('bundled-media.json');content=this.bundledMedia[url];}if(!content)throw new Error('Media file missing: '+url);const bytes=decode64(content);this.mediaBytes.set(url,bytes);return bytes;}
+ async fileBytes(url){if(this.mediaBytes.has(url))return this.mediaBytes.get(url);if(!/^(assets|media)\/[\w./-]+$/.test(url)||url.includes('..'))throw new Error('Invalid media reference.');const value=await this.client.file(this.sourceRepo,FILES+url);let content=value?.content;if(!content&&/^assets\/(?:case-study|project-media)\/[a-z0-9-]+\.(?:jpg|webp|mp4|gif)$/.test(url)){this.bundledMedia??=await this.localJson('bundled-media.json');content=this.bundledMedia[url];}if(!content)throw new Error('Media file missing: '+url);const bytes=decode64(content);this.mediaBytes.set(url,bytes);return bytes;}
  previewUrl(url){return this.urls.get(url)||'';}
  async media(){const entries=(await this.filesTree()).filter(f=>f.type==='blob'&&f.path.startsWith(FILES));const result=[];for(const item of entries){const url=item.path.slice(FILES.length),type=types[url.split('.').pop()]||'application/octet-stream';if(!this.urls.has(url)){const bytes=await this.fileBytes(url);this.urls.set(url,URL.createObjectURL(new Blob([bytes],{type})));}result.push({url,name:url.split('/').pop(),size:item.size,type,previewUrl:this.urls.get(url)});}return result;}
  async history(){return (await this.filesTree()).filter(x=>x.type==='blob'&&x.path.startsWith('studio/history/')).map(x=>({key:x.path,date:(x.path.match(/\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.\d{3}Z/)?.[0]||'').replace(/T(\d+)-(\d+)-(\d+)/,'T$1:$2:$3')})).reverse();}
