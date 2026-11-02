@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -17,14 +18,12 @@ from urllib.request import Request, urlopen
 
 LIST_ID = "1000450000001486"
 STAGES = ("Pitch", "Alpha", "Beta", "Full Release")
-# Original roadmap estimates. Until all tasks have stage tags, these are
-# planning denominators rather than counts of tasks currently carrying a tag.
-PLANNED_STAGE_TOTALS = {
-    "Pitch": 92,
-    "Alpha": 117,
-    "Beta": 76,
-    "Full Release": 18,
-}
+# Imported granular tasks contain "Suggested stage: ..." in their descriptions.
+# A unique explicit stage tag overrides that provisional stage. Stage totals
+# are then computed from the current task inventory on every sync.
+SUGGESTED_STAGE_PATTERN = re.compile(
+    r"Suggested\s+stage\s*:\s*(Pitch|Alpha|Beta|Full Release)\b", re.IGNORECASE
+)
 DESTINATION = Path(__file__).with_name("progress.json")
 
 
@@ -68,10 +67,11 @@ def is_complete(task: dict) -> bool:
 
 
 def get_stage(task: dict) -> str | None:
-    """Classify a task exclusively by its ClickUp Tags field.
+    """Prefer a unique ClickUp stage tag; fall back to imported stage text.
 
-    A task with no stage tag, or with conflicting stage tags, stays
-    unassigned. We never use the locked Suggested Stage custom field.
+    A conflicting set of stage tags is explicitly unassigned. Untagged
+    imported MOR tasks use their existing Suggested stage description until
+    an explicit stage tag reassigns them. Never use custom fields.
     """
     matches: set[str] = set()
     for tag in task.get("tags") or []:
@@ -86,7 +86,22 @@ def get_stage(task: dict) -> str | None:
         for stage in STAGES:
             if normalized == stage.casefold():
                 matches.add(stage)
-    return next(iter(matches)) if len(matches) == 1 else None
+
+    if len(matches) > 1:
+        return None
+    if len(matches) == 1:
+        return next(iter(matches))
+
+    description = task.get("description") or task.get("text_content") or ""
+    if not isinstance(description, str):
+        return None
+    suggested = SUGGESTED_STAGE_PATTERN.search(description)
+    if suggested:
+        return next(
+            stage for stage in STAGES
+            if stage.casefold() == suggested.group(1).casefold()
+        )
+    return None
 
 def main() -> None:
     token = os.environ.get("CLICKUP_API_TOKEN", "").strip()
@@ -106,8 +121,7 @@ def main() -> None:
     if not all_tasks:
         raise RuntimeError("No ClickUp tasks found; refusing to overwrite last good report")
 
-    stages = {name: {"done": 0, "total": planned} for name, planned in PLANNED_STAGE_TOTALS.items()}
-    tagged_counts = {name: 0 for name in STAGES}
+    stages = {name: {"done": 0, "total": 0} for name in STAGES}
     completed = 0
     unassigned = 0
     completed_unassigned = 0
@@ -119,15 +133,8 @@ def main() -> None:
             unassigned += 1
             completed_unassigned += int(done)
         else:
-            tagged_counts[stage] += 1
+            stages[stage]["total"] += 1
             stages[stage]["done"] += int(done)
-
-    # Once the number of tagged tasks exceeds an original estimate, expand
-    # its denominator. This prevents counts or progress exceeding 100%.
-    for stage in STAGES:
-        stages[stage]["total"] = max(
-            PLANNED_STAGE_TOTALS[stage], tagged_counts[stage]
-        )
 
     summary = {
         "version": 1,
@@ -140,10 +147,10 @@ def main() -> None:
     DESTINATION.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Morph summary generated: {completed}/{len(all_tasks)}. Only aggregate totals are published.")
     print(
-        "Morph tag-based stages: "
+        "Morph stage assignments (tags, then imported suggestions): "
         + ", ".join(
             f"{stage}={stages[stage]['done']}/{stages[stage]['total']} "
-            f"(tagged={tagged_counts[stage]})"
+            f"(assigned={stages[stage]['total']})"
             for stage in STAGES
         )
         + f"; unassigned={unassigned}, completed_unassigned={completed_unassigned}."
