@@ -25,6 +25,12 @@ The dashboard counts **current task records** in the Morph ClickUp List, with ea
 
 The original roadmap had 303 granular tasks (Pitch 92, Alpha 117, Beta 76, Full Release 18). Existing umbrella cards and newer tasks count in a stage when tagged, rather than being silently added to those original allocations. Untagged umbrella cards remain unassigned. The overall bar counts **all** tasks and their true completion statuses, whether staged or not. JUICE and DEFFERED are work statuses, not development stages. Only aggregate counts are published.
 
+## Pitch scope review (November 2026)
+
+The first playable Pitch milestone is being reduced to a deliberately chosen Dog → Crow → Dog interaction in a compact greybox environment. See [PITCH_SCOPE.md](PITCH_SCOPE.md) for the proposed task-level scope and acceptance test.
+
+**The ClickUp reclassification has not yet been applied.** Until it is applied and verified, the dashboard continues displaying the real currently assigned task totals (including provisional imported descriptions). It now puts the Pitch milestone first and labels the complete 338-task inventory as a long-term backlog. The 15 completed tasks are not a weighted percentage of game development effort.
+
 ## Automatic synchronization
 
 GitHub Actions securely fetches ClickUp task totals approximately every 30 minutes and deploys the aggregate progress JSON to GitHub Pages. The dashboard checks the deployed JSON every two minutes while visible and again when the visitor returns to the tab. No manual sync button or browser-side API credential is required.
