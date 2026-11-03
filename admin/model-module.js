@@ -1,4 +1,4 @@
-export const copyDefaults={projectMedia:'Project media',previousImage:'Previous image',nextImage:'Next image',playPreview:'Play preview',pausePreview:'Pause preview',navWork:'WORK',navSkills:'SKILLS',navContact:'CONTACT',navLabel:'Main navigation',skip:'Skip to content',themeLight:'Switch to light mode',themeDark:'Switch to dark mode',groupsLabel:'Show project groups',rolePrefix:'I’m',heroJump:'FEATURED WORK ↓',viewAllWork:'View all work',contactTitle:'Get in touch',contactIntro:'Have a project in mind, a question or an opportunity? Send me an email or find me below.',contactEmailLabel:'Email',contactEmailHover:'Send me an email!',contactSocialLabel:'Elsewhere',portraitHint:'Click to flip · drag to spin',flipPortrait:'Flip portrait card',spinPortrait:'Spin portrait card',showPortrait:'Show portrait',showMonogram:'Show initials',portraitName:'AKASH SEAM',portraitInitials:'AS',portraitLabel:'Akash Seam monogram',footerTop:'BACK TO TOP ↑',skillsTitle:'Skills',skillsIntro:'Each dot links to a project where I used that skill. Hover or focus for its name.',backWork:'← Back to work',contents:'On this page',credits:'Built with',backFeatured:'← Back to featured work',backTop:'Back to top ↑',otherWork:'Other work',imagePlaceholder:'Image · to add',videoPlaceholder:'Video · to add',videoFallback:'Your browser does not support video.',viewProject:'View project',viewItch:'Play on itch.io',watchFilm:'Watch film',viewInstagram:'View on Instagram',viewAnimation:'View animation',viewCode:'View code',readCaseStudy:'Read case study',pauseRoles:'Pause rotating roles',resumeRoles:'Resume rotating roles',previousRole:'Previous role',nextRole:'Next role',offlineTitle:'Portfolio unavailable',offlineMessage:'This portfolio is currently offline.',pageMissing:'Page not found',backPortfolio:'Back to portfolio'};
+export const copyDefaults={previousProjects:"Previous projects",nextProjects:"Next projects",nextProject:'Next project',nextCategory:'Next category',projectMedia:'Project media',previousImage:'Previous image',nextImage:'Next image',playPreview:'Play preview',pausePreview:'Pause preview',navWork:'WORK',navSkills:'SKILLS',navContact:'CONTACT',navLabel:'Main navigation',skip:'Skip to content',themeLight:'Switch to light mode',themeDark:'Switch to dark mode',groupsLabel:'Show project groups',rolePrefix:'I’m',heroJump:'FEATURED WORK ↓',viewAllWork:'View all work',contactTitle:'Get in touch',contactIntro:'Have a project in mind, a question or an opportunity? Send me an email or find me below.',contactEmailLabel:'Email',contactEmailHover:'Send me an email!',contactSocialLabel:'Elsewhere',portraitHint:'Click to flip · drag to spin',flipPortrait:'Flip portrait card',spinPortrait:'Spin portrait card',showPortrait:'Show portrait',showMonogram:'Show initials',portraitName:'AKASH SEAM',portraitInitials:'AS',portraitLabel:'Akash Seam monogram',footerTop:'BACK TO TOP ↑',skillsTitle:'Skills',skillsIntro:'Each dot links to a project where I used that skill. Hover or focus for its name.',backWork:'← Back to work',contents:'On this page',credits:'Built with',backFeatured:'← Back to featured work',backTop:'Back to top ↑',otherWork:'Other work',imagePlaceholder:'Image · to add',videoPlaceholder:'Video · to add',videoFallback:'Your browser does not support video.',viewProject:'View project',viewItch:'Play on itch.io',watchFilm:'Watch film',viewInstagram:'View on Instagram',viewAnimation:'View animation',viewCode:'View code',readCaseStudy:'Read case study',pauseRoles:'Pause rotating roles',resumeRoles:'Resume rotating roles',previousRole:'Previous role',nextRole:'Next role',offlineTitle:'Portfolio unavailable',offlineMessage:'This portfolio is currently offline.',pageMissing:'Page not found',backPortfolio:'Back to portfolio'};
 export const palettePresets={"signal": {"light": "#F5F2F4", "dark": "#171219", "accent": "#F50057"}, "original": {"light": "#F5F3EF", "dark": "#171310", "accent": "#FF4A17"}, "raspberry": {"light": "#F6F1F3", "dark": "#1B1117", "accent": "#D4145A"}, "marine": {"light": "#F0F5F3", "dark": "#101A19", "accent": "#008C82"}, "violet": {"light": "#F4F2F7", "dark": "#16121F", "accent": "#7547FF"}, "cobalt": {"light": "#F1F3F8", "dark": "#111522", "accent": "#235CFF"}, "emerald": {"light": "#F0F6F2", "dark": "#101B15", "accent": "#008E53"}, "vermilion": {"light": "#F7F2F0", "dark": "#1C1210", "accent": "#E4321B"}, "amber": {"light": "#F7F5EF", "dark": "#1C1810", "accent": "#E9A000"}, "lime": {"light": "#F4F7EF", "dark": "#161B10", "accent": "#87B900"}, "cyan": {"light": "#EFF6F7", "dark": "#101B20", "accent": "#00A8C7"}, "rose": {"light": "#F8F1F4", "dark": "#1E1118", "accent": "#EB286D"}, "indigo": {"light": "#F2F2F8", "dark": "#141326", "accent": "#5140DF"}, "magenta": {"light": "#F7F1F7", "dark": "#1D111E", "accent": "#C911C6"}, "coral": {"light": "#F8F2F0", "dark": "#201311", "accent": "#F2573C"}, "jade": {"light": "#EFF7F3", "dark": "#102019", "accent": "#00A876"}, "azure": {"light": "#EFF5F9", "dark": "#101A24", "accent": "#0084E8"}, "gold": {"light": "#F8F6EF", "dark": "#201C10", "accent": "#C59800"}, "plum": {"light": "#F6F1F6", "dark": "#1B121D", "accent": "#9E248B"}, "tangerine": {"light": "#F8F4EE", "dark": "#20170F", "accent": "#F07800"}};
 export const paletteNames={"signal": "Signal pink", "original": "Flame", "raspberry": "Raspberry", "marine": "Marine", "violet": "Violet", "cobalt": "Cobalt", "emerald": "Emerald", "vermilion": "Vermilion", "amber": "Amber", "lime": "Lime", "cyan": "Cyan", "rose": "Rose", "indigo": "Indigo", "magenta": "Magenta", "coral": "Coral", "jade": "Jade", "azure": "Azure", "gold": "Gold", "plum": "Plum", "tangerine": "Tangerine"};
 export function ensureModel(data){
@@ -11,7 +11,7 @@ export function ensureModel(data){
  if(data.copy?.skillsIntro==='Each dot links to a project where I used that skill. Hover or focus for its name, or expand the project list.')data.copy.skillsIntro='Each dot links to a project where I used that skill. Hover or focus for its name.';
  data.copy={...copyDefaults,...data.copy};data.palette={...palettePresets.raspberry,...data.palette};data.pages??={};
  for(const [key,types]of Object.entries({home:['hero','featured'],skills:['skillsHeader','skillIndex'],work:['workHeader','workGroups'],contact:['contactHeader','contactLinks']})){data.pages[key]??={};data.pages[key].blocks??=types.map(type=>({id:'page-'+key+'-'+type,type}));}
- for(const p of data.projects){p.writeupPublished??=true;p.skillLinkMode??='auto';p.hiddenSkillIds??=[];for(const section of p.sections||[])section.published??=true;p.copy={backWork:data.copy.backWork,contents:data.copy.contents,credits:data.copy.credits,backFeatured:data.copy.backFeatured,backTop:data.copy.backTop,...p.copy};p.introBlocks??=['projectTitle','projectTagline','gameplay','projectSummary','playLink'].map(type=>({id:p.id+'-'+type,type}));p.endBlocks??=['credits','facts','endLinks'].map(type=>({id:p.id+'-'+type,type}));}
+ for(const p of data.projects){p.writeupPublished??=true;p.skillLinkMode??='auto';p.skillTargets??={};p.hiddenSkillIds??=[];for(const section of p.sections||[])section.published??=true;p.copy={backWork:data.copy.backWork,contents:data.copy.contents,credits:data.copy.credits,backFeatured:data.copy.backFeatured,backTop:data.copy.backTop,...p.copy};p.introBlocks??=['projectTitle','projectTagline','gameplay','projectSummary','playLink'].map(type=>({id:p.id+'-'+type,type}));p.endBlocks??=['credits','facts','endLinks'].map(type=>({id:p.id+'-'+type,type}));}
  applyPortfolioCaseReview(data);
  applyPortfolioPresentation(data);
  applyProjectOverviews(data);
@@ -22,6 +22,9 @@ export function ensureModel(data){
  applyFinalVisuals(data);
  applyProjectTags(data);
  applyProjectMedia(data);
+ applyEvidenceNavigation(data);
+ applyWorkCarousels(data);
+ applyProjectPremises(data);
  for(const p of data.projects){p.carousel??=[];p.stats??=[];p.statsLabel??="On itch.io";p.statsNote??="";p.previewSrc??="";p.previewMode??="hover";p.myWorkSkillIds??=[];p.myWorkIncludeSections??=true;p.myWorkSkillLabels??={};p.caseStudyNotice??="Case study coming soon";p.caseStudyHeading??="Case Study";}
  return data;
 }
@@ -529,3 +532,56 @@ function applyProjectMedia(data){
  const order=['portfolio-studio-desk','nightshift','daisychain'];const featured=order.map(id=>data.projects.find(p=>p.id===id)).filter(Boolean);data.projects=[...featured,...data.projects.filter(p=>!order.includes(p.id))];
  data._projectMediaVersion=1;
 }
+
+// One-time corrections leave subsequent owner edits authoritative.
+function applyEvidenceNavigation(data){
+ if(data._evidenceNavigationVersion||!data._projectMediaVersion)return;
+ const additions={
+  'portfolio-studio-desk':['data-persistence','api-integration','ui-implementation','project-management','design-documentation','release-support','colour-design'],
+  'daisychain':['production-planning','project-management'],
+  'framechanger':['product-definition','systems-design'],
+  'procedural-2d-tree-generator':['systems-design']
+ };
+ const available=new Set(data.categories.flatMap(c=>c.skills.map(s=>s.id)));
+ for(const p of data.projects){
+  const ids=additions[p.id]||[];
+  if(p.groupId==='animation')ids.push('visual-composition');
+  p.skillIds=[...new Set([...(p.skillIds||[]),...ids.filter(id=>available.has(id)&&!p.hiddenSkillIds?.includes(id))])];
+  if(p.id==='portfolio-studio-desk'){
+   p.skillTargets??={};
+   const targets={'technical-specification':'implementation','information-architecture':'evidence','data-persistence':'implementation','api-integration':'implementation','ui-implementation':'implementation','release-support':'implementation','design-documentation':'implementation','colour-design':'portrait','project-management':'top'};
+   for(const [id,target]of Object.entries(targets))p.skillTargets[id]??=target;
+  }
+  if(p.statsNote?.includes('Snapshot supplied by Akash'))p.statsNote=p.statsNote.replace('Snapshot supplied by Akash · November 2026','Last updated 1 November 2026');
+ }
+ data._evidenceNavigationVersion=1;
+}
+
+function applyWorkCarousels(data){
+ if(data._workCarouselVersion||!data._evidenceNavigationVersion)return;
+ data.copy.skillsIntro='The skills behind my work, with each dot linking to a project where I used them.';
+ const ids=['portfolio-studio-desk','desktop-detective','nightshift','daisychain'];
+ const chosen=ids.map(id=>data.projects.find(p=>p.id===id)).filter(Boolean);
+ for(const p of data.projects)p.featured=ids.includes(p.id);
+ data.settings.featuredOrder=[...ids,...data.projects.filter(p=>!ids.includes(p.id)).map(p=>p.id)];
+ data._workCarouselVersion=1;
+}
+
+function applyProjectPremises(data){
+ if(data._projectPremiseVersion||!data._workCarouselVersion)return;
+ const order=['games','films','creative-coding','illustration','renders','animation'];
+ data.groups.sort((a,b)=>(order.includes(a.id)?order.indexOf(a.id):99)-(order.includes(b.id)?order.indexOf(b.id):99));
+ for(const group of data.groups){if(group.id==='films')group.label='Movies';if(group.id==='animation')group.label='Hand-drawn animations';}
+ for(const p of data.projects){
+  const i=p.introBlocks.findIndex(b=>b.type==='projectTagline');
+  if(i>=0){const [tag]=p.introBlocks.splice(i,1);const title=p.introBlocks.findIndex(b=>b.type==='projectTitle');p.introBlocks.splice(title+1,0,tag);}
+  if(projectPremises[p.id])Object.assign(p,projectPremises[p.id]);
+  if(p.groupId==='illustration'){p.tagline='Hand-drawn digital illustration.';p.summary=(p.bannerAlt||p.title)+' A hand-drawn digital illustration.';}
+  if(p.groupId==='animation'){p.tagline='Hand-drawn animation study.';p.summary=p.summary.replace(' A short 2D hand-drawn animation study.','');}
+  if(p.groupId==='renders')p.summary=(p.bannerAlt||p.title)+' A 3D study in form, materials and lighting.';
+  if(p.id==='portfolio-studio-desk'){p.homepageThumbnail=true;p.summaryDesign='A portfolio that brings games, films, artwork and software into one place. Rotating roles connect to individual skills, and project dots lead to evidence of those skills in use. A custom editor manages the content, page layouts, media and publishing.';p.summaryTechnical='The portfolio and its browser-based editor run on GitHub Pages. Shared HTML, CSS and JavaScript rendering keeps previews aligned with published pages, while the GitHub API stores private drafts and publishes static files without a separate application server.';}
+ }
+ data._projectPremiseVersion=1;
+}
+
+const projectPremises={"daisychain": {"tagline": "A crime drama about a hired killing that refuses to stay simple.", "summary": "A young woman hires a professional to end her life. What appears to be a straightforward assignment becomes more complicated than either of them expects, in a short crime drama centred on their encounter."}, "perhaps": {"tagline": "A romantic drama about an unexpected and troubled connection.", "summary": "Mike, a mechanic, meets Nancy, an escort hired by his friends for his birthday. The short film follows the turbulent relationship that develops from that encounter."}, "oh-what-a-night": {"tagline": "Three friends, a New Year’s party and a night of regrets.", "summary": "Three friends head to a New Year’s party hoping to enjoy the night. Their attempt to make the most of it gives way to regret as the evening unfolds."}, "solar-trash": {"summary": "A solarpunk restoration game set in the polluted town of Blaenderry. Clearing rubbish restores the environment, while conversations with residents connect the cleanup to the people who live there."}, "portfolio-studio-desk": {"tagline": "A connected portfolio with a custom editor for keeping it up to date."}};

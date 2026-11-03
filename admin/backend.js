@@ -1,7 +1,7 @@
-import {mergeDrafts} from './draft-merge.js?v=8153e6ab51e0';
-import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=8153e6ab51e0';
-import {pageHtml,makePublicTextFiles} from './site.js?v=8153e6ab51e0';
-import {validate,normalize} from './runtime.js?v=8153e6ab51e0';
+import {mergeDrafts} from './draft-merge.js?v=131d53c9afde';
+import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=131d53c9afde';
+import {pageHtml,makePublicTextFiles} from './site.js?v=131d53c9afde';
+import {validate,normalize} from './runtime.js?v=131d53c9afde';
 const STATE='studio/state.json',FILES='studio/files/';
 const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',svg:'image/svg+xml',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav'};
 export function initialState(draft,published=draft){return {format:1,revision:0,draft:normalize(structuredClone(draft)),published:normalize(structuredClone(published)),savedAt:null,publishedAt:null};}
