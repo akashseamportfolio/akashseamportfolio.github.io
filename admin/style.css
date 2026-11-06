@@ -18,6 +18,12 @@
 :where(button,a,summary):active{filter:brightness(.86)}button:active{box-shadow:inset 0 0 0 2px currentColor}
 .publishing-controls{padding:18px;border:1px solid var(--line,#ccc);margin:20px 0}.preview-draft-control{padding:10px 18px;font-size:12px;background:#fff3ca;color:#27241a}.preview-draft-control[hidden]{display:none}#editor p,#editor li{line-height:1.65}#editor fieldset{margin:14px 0;border:1px solid #bbb}#editor fieldset .skill-choice{margin:6px 0}
 
+.analytics-table{width:100%;border-collapse:collapse;text-align:left}.analytics-table th,.analytics-table td{padding:12px;border-bottom:1px solid #ddd}.analytics-table small{display:block;opacity:.65;overflow-wrap:anywhere}
+
+.analytics-panel{margin:14px 0;border:1px solid #ccd0ca;padding:14px;border-radius:4px}.analytics-panel summary{cursor:pointer;font-weight:600}.analytics-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:12px;margin:20px 0}.analytics-metrics>div{background:#e8ece5;padding:15px}.analytics-metrics strong{display:block;font-size:1.7rem}.analytics-trend{height:100px;display:flex;align-items:flex-end;gap:2px;margin:18px 0;border-bottom:1px solid #b8bdb8}.analytics-trend span{flex:1;background:#b70047;min-width:1px}.analytics-table-wrap{overflow:auto}.analytics-table td{overflow-wrap:anywhere}.analytics-hours{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:.8rem}.analytics-hours dd{margin:0}.analytics-table button{font-size:.75rem}#analytics-detail:not(:empty){border-top:2px solid #b70047;padding:20px 0;margin-top:20px}
+
+body.analytics-view .desk-layout{grid-template-columns:210px minmax(0,1fr)}body.analytics-view .preview-pane{display:none}body.analytics-view #editor{max-width:1100px;width:100%;box-sizing:border-box}.analytics-metrics{max-width:850px}@media(max-width:900px){body.analytics-view .desk-layout{grid-template-columns:165px minmax(0,1fr)}}
+
 #github-connection{max-width:760px;margin:48px auto;padding:28px;background:var(--panel,#fff);border:1px solid var(--line,#ccc)}
 #github-connection h1{font-size:34px}#github-connection p,#github-connection li{line-height:1.7}
 #github-connection .field{margin-top:18px}#connection-notice{padding:14px 0;white-space:pre-wrap;font-weight:600}

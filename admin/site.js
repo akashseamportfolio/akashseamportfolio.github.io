@@ -1,5 +1,5 @@
-import {usesProjectPage,renderHome,renderWork,renderContact,renderSkills,renderProject,validate,escape} from './runtime.js?v=131d53c9afde';
-import {templates} from './templates.js?v=131d53c9afde';
+import {usesProjectPage,renderHome,renderWork,renderContact,renderSkills,renderProject,validate,escape} from './runtime.js?v=e844f2b51df2';
+import {templates} from './templates.js?v=e844f2b51df2';
 export function renderPages(data){validate(data);return new Map([['index.html',renderHome(data,templates)],['work/index.html',renderWork(data,templates)],['contact/index.html',renderContact(data,templates)],['skills/index.html',renderSkills(data,templates)],...data.projects.filter(p=>p.status==='published'&&usesProjectPage(p)).map(p=>[p.slug+'/index.html',renderProject(data,p,templates)])]);}
 export function pageHtml(data,id,options={}){validate(data);if(id==='home')return renderHome(data,templates);if(id==='work')return renderWork(data,templates);if(id==='contact')return renderContact(data,templates);if(id==='skills')return renderSkills(data,templates);const p=data.projects.find(p=>p.id===id);if(!p)throw new Error('Project not found.');p.status='published';p.pageEnabled=true;return renderProject(data,p,templates,options);}
 export function cleanLinks(html,base='/'){
@@ -15,5 +15,8 @@ export function makePublicTextFiles(data,online,base,assets){
  files.set('404.html',online?`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Page not found</title></head><body><h1>${escape(data.copy.pageMissing)}</h1><a href="${base}">${escape(data.copy.backPortfolio)}</a></body></html>`:offlinePage(data.copy));
  files.set('.nojekyll','');files.set('robots.txt','User-agent: *\nDisallow: /\n');
  if(online)for(const [path,content]of Object.entries(assets))files.set(path,content);
+ // Morph remains independent. Keep its shared theme available when the main portfolio is offline.
+ for(const name of ['theme.js','analytics.js'])if(assets[name])files.set(name,assets[name]);
+ files.set('analytics-config.json',JSON.stringify({enabled:!!(online&&data.settings?.analyticsEnabled),code:String(data.settings?.goatcounterCode||'').trim().toLowerCase(),hostname:String(data.settings?.analyticsHostname||'akashseamportfolio.github.io').trim().toLowerCase()}));
  return {files,media:online?mediaReferences(pages):new Set()};
 }
