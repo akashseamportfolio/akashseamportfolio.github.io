@@ -314,3 +314,4 @@ document.addEventListener('dragstart',event=>{if(!event.target.closest('input,te
  });
  if(location.hash.startsWith('#group-'))requestAnimationFrame(()=>document.getElementById(location.hash.slice(1))?.scrollIntoView({behavior:'instant',block:'start'}));
 })();
+
