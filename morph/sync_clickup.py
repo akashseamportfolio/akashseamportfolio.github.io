@@ -18,9 +18,9 @@ from urllib.request import Request, urlopen
 
 LIST_ID = "1000450000013753"
 STAGES = ("Greybox", "Pitch", "Alpha", "Beta", "Full Release")
-# Imported granular tasks contain "Suggested stage: ..." in their descriptions.
-# A unique explicit stage tag overrides that provisional stage. Stage totals
-# are then computed from the current task inventory on every sync.
+# A leading [G], [P], [A], [B], or [F] in a task name is the preferred
+# stage assignment. For tasks without a prefix, fall back to a unique stage
+# tag, then "Suggested stage:" in the description, then the task status.
 SUGGESTED_STAGE_PATTERN = re.compile(
     r"Suggested\s+stage\s*:\s*(Greybox|Pitch|Alpha|Beta|Full Release)\b", re.IGNORECASE
 )
@@ -67,12 +67,16 @@ def is_complete(task: dict) -> bool:
 
 
 def get_stage(task: dict) -> str | None:
-    """Prefer a unique ClickUp stage tag; fall back to imported stage text.
+    """Prefer the editable name prefix, then tags, description, and status.
 
-    A conflicting set of stage tags is explicitly unassigned. Untagged
-    imported MOR tasks use their existing Suggested stage description until
-    an explicit stage tag reassigns them. Fall back to the stable task-name prefix, then an explicit stage status.
+    A unique stage tag applies only to tasks without a name prefix. Conflicting
+    stage tags leave an unprefixed task unassigned until they are corrected.
     """
+    # The prefix survives moves into Current, Waiting, Juice, or Complete.
+    prefix = re.match(r"^\[([GPABF])\]", str(task.get("name", "")), re.IGNORECASE)
+    if prefix:
+        return dict(zip("GPABF", STAGES))[prefix.group(1).upper()]
+
     matches: set[str] = set()
     for tag in task.get("tags") or []:
         name = tag.get("name", "") if isinstance(tag, dict) else str(tag)
@@ -101,10 +105,6 @@ def get_stage(task: dict) -> str | None:
             stage for stage in STAGES
             if stage.casefold() == suggested.group(1).casefold()
         )
-    # The stable name prefix survives moves into Current, Waiting or Complete.
-    prefix = re.match(r"^\[([GPABF])\]", str(task.get("name", "")), re.IGNORECASE)
-    if prefix:
-        return dict(zip("GPABF", STAGES))[prefix.group(1).upper()]
     return next((stage for stage in STAGES if stage.casefold() == status_label(task).casefold()), None)
 
 def main() -> None:
@@ -151,7 +151,7 @@ def main() -> None:
     DESTINATION.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Morph summary generated: {completed}/{len(all_tasks)}. Only aggregate totals are published.")
     print(
-        "Morph stage assignments (tags, then imported suggestions): "
+        "Morph stage assignments (name prefix, tags, description, then status): "
         + ", ".join(
             f"{stage}={stages[stage]['done']}/{stages[stage]['total']} "
             f"(assigned={stages[stage]['total']})"
