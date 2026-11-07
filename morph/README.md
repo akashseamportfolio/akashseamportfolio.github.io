@@ -15,21 +15,22 @@ Do not paste a ClickUp token into this repository, public page, or JSON. Without
 
 ## Stage counting (ClickUp Free Forever)
 
-The dashboard counts **current task records** in the Morph ClickUp List, with each task contributing to at most one of the four development stages: `Pitch`, `Alpha`, `Beta`, and `Full Release`.
+The dashboard reads the new **Morph** ClickUp List (ID `1000450000013753`) and tracks five stages: **Greybox**, **Pitch**, **Alpha**, **Beta**, and **Full Release**. Each task counts in at most one stage.
 
-1. **Explicit ClickUp stage tag wins.** The Tags field supports `Pitch`, `Alpha`, `Beta`, `Full Release`, `Pitch Stage`, and `Stage: Pitch` (case-insensitive), with equivalent aliases for other stages. Add one stage tag when you deliberately assign or move a task.
-2. **Existing imported roadmap stage is a provisional fallback.** The 303 granular `MOR-...` tasks were imported with `Suggested stage: Pitch/Alpha/Beta/Full Release` in their descriptions. Until they receive explicit stage tags, the sync reads that existing description text. It does not depend on a paid ClickUp custom field.
-3. **No valid or conflicting stage tags:** If there is no valid tag and no recognized suggestion, the task remains unassigned. Conflicting valid stage tags always leave a task unassigned until the tags are corrected.
+Stage assignment priority, from highest to lowest:
 
-**Stage denominators are actual counts of currently assigned tasks, not fixed estimates.** Adding or deleting a staged task changes the corresponding total at the next sync. Applying a stage tag overrides a description's provisional stage and moves that task between stage totals. Each stage's completed numerator counts completed tasks assigned by the same rules, so its percentage is internally consistent.
+1. **Task name prefix:** A task name beginning with `[G]`, `[P]`, `[A]`, `[B]`, or `[F]` assigns it to Greybox, Pitch, Alpha, Beta, or Full Release, respectively. Prefixes are case-insensitive. **The prefix overrides any conflicting stage tag, description, or status.** To reassign a task, change its prefix in the name.
+2. **Stage tag:** For a task without a recognized prefix, a unique stage tag such as `Beta`, `Beta Stage`, or `Stage: Beta` takes precedence. Conflicting stage tags leave an unprefixed task unassigned.
+3. **Description:** Without a recognized prefix or tag, `Suggested stage: Beta` (or any other recognized stage) anywhere in the description assigns the stage, regardless of capitalization.
+4. **Task status:** If none of the above is present, the stage status itself is used when it matches a recognized stage. Workflow statuses such as Waiting, Current, Juice, Deffered, and Complete are not stages.
 
-The original roadmap had 303 granular tasks (Pitch 92, Alpha 117, Beta 76, Full Release 18). Existing umbrella cards and newer tasks count in a stage when tagged, rather than being silently added to those original allocations. Untagged umbrella cards remain unassigned. The overall bar counts **all** tasks and their true completion statuses, whether staged or not. JUICE and DEFFERED are work statuses, not development stages. Only aggregate counts are published.
+For new tasks, use the name prefix. The existing imported tasks can retain their historical `Suggested stage:` descriptions as a fallback. A task moved into Current, Waiting, Juice, Next on the list, or Complete retains its stage through the prefix or description. Completion is determined separately by the ClickUp status.
 
-## Pitch scope review (November 2026)
+The dashboard totals are the number of currently assigned task records, not estimates of engineering effort. Adding, completing, reassigning, or deleting tasks changes the corresponding counts at the next successful sync. Only aggregate totals are published, never task titles or descriptions.
 
-The first playable Pitch milestone is being reduced to a deliberately chosen Dog → Crow → Dog interaction in a compact greybox environment. See [PITCH_SCOPE.md](PITCH_SCOPE.md) for the proposed task-level scope and acceptance test.
+## Scope notes
 
-**The ClickUp reclassification has not yet been applied.** Until it is applied and verified, the dashboard continues displaying the real currently assigned task totals (including provisional imported descriptions). It now puts the Pitch milestone first and labels the complete 338-task inventory as a long-term backlog. The 15 completed tasks are not a weighted percentage of game development effort.
+The old 338-task list is preserved as **Morph old**, while the new Morph list uses the revised Greybox → Pitch → Alpha → Beta → Full Release roadmap. The earlier [Pitch scope review](PITCH_SCOPE.md) is retained as historical planning context, not the authoritative current task allocation.
 
 ## Automatic synchronization
 
