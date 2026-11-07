@@ -16,13 +16,13 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-LIST_ID = "1000450000001486"
-STAGES = ("Pitch", "Alpha", "Beta", "Full Release")
+LIST_ID = "1000450000013753"
+STAGES = ("Greybox", "Pitch", "Alpha", "Beta", "Full Release")
 # Imported granular tasks contain "Suggested stage: ..." in their descriptions.
 # A unique explicit stage tag overrides that provisional stage. Stage totals
 # are then computed from the current task inventory on every sync.
 SUGGESTED_STAGE_PATTERN = re.compile(
-    r"Suggested\s+stage\s*:\s*(Pitch|Alpha|Beta|Full Release)\b", re.IGNORECASE
+    r"Suggested\s+stage\s*:\s*(Greybox|Pitch|Alpha|Beta|Full Release)\b", re.IGNORECASE
 )
 DESTINATION = Path(__file__).with_name("progress.json")
 
@@ -71,7 +71,7 @@ def get_stage(task: dict) -> str | None:
 
     A conflicting set of stage tags is explicitly unassigned. Untagged
     imported MOR tasks use their existing Suggested stage description until
-    an explicit stage tag reassigns them. Never use custom fields.
+    an explicit stage tag reassigns them. Fall back to the stable task-name prefix, then an explicit stage status.
     """
     matches: set[str] = set()
     for tag in task.get("tags") or []:
@@ -92,7 +92,7 @@ def get_stage(task: dict) -> str | None:
     if len(matches) == 1:
         return next(iter(matches))
 
-    description = task.get("description") or task.get("text_content") or ""
+    description = task.get("description") or task.get("text_content") or task.get("markdown_description") or ""
     if not isinstance(description, str):
         return None
     suggested = SUGGESTED_STAGE_PATTERN.search(description)
@@ -101,7 +101,11 @@ def get_stage(task: dict) -> str | None:
             stage for stage in STAGES
             if stage.casefold() == suggested.group(1).casefold()
         )
-    return None
+    # The stable name prefix survives moves into Current, Waiting or Complete.
+    prefix = re.match(r"^\[([GPABF])\]", str(task.get("name", "")), re.IGNORECASE)
+    if prefix:
+        return dict(zip("GPABF", STAGES))[prefix.group(1).upper()]
+    return next((stage for stage in STAGES if stage.casefold() == status_label(task).casefold()), None)
 
 def main() -> None:
     token = os.environ.get("CLICKUP_API_TOKEN", "").strip()
@@ -137,7 +141,7 @@ def main() -> None:
             stages[stage]["done"] += int(done)
 
     summary = {
-        "version": 1,
+        "version": 2,
         "source": "clickup",
         "updatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "overall": {"done": completed, "total": len(all_tasks)},
@@ -159,3 +163,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

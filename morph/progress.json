@@ -1,28 +1,32 @@
 {
-  "version": 1,
+  "version": 2,
   "source": "clickup",
-  "updatedAt": "2026-11-02T21:45:44+00:00",
+  "updatedAt": "2026-11-07T03:25:44+00:00",
   "overall": {
     "done": 15,
-    "total": 338
+    "total": 317
   },
   "stages": {
-    "Pitch": {
+    "Greybox": {
       "done": 15,
-      "total": 104
+      "total": 83
+    },
+    "Pitch": {
+      "done": 0,
+      "total": 71
     },
     "Alpha": {
       "done": 0,
-      "total": 116
+      "total": 141
     },
     "Beta": {
       "done": 0,
-      "total": 76
+      "total": 17
     },
     "Full Release": {
       "done": 0,
-      "total": 18
+      "total": 5
     }
   },
-  "unassigned": 24
+  "unassigned": 0
 }
