@@ -1,10 +1,10 @@
 {
   "version": 2,
   "source": "clickup",
-  "updatedAt": "2026-11-07T03:25:44+00:00",
+  "updatedAt": "2026-11-07T05:26:58+00:00",
   "overall": {
     "done": 15,
-    "total": 317
+    "total": 437
   },
   "stages": {
     "Greybox": {
@@ -21,7 +21,7 @@
     },
     "Beta": {
       "done": 0,
-      "total": 17
+      "total": 137
     },
     "Full Release": {
       "done": 0,
