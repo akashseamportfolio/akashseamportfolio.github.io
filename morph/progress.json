@@ -1,15 +1,15 @@
 {
   "version": 2,
   "source": "clickup",
-  "updatedAt": "2026-11-07T05:26:58+00:00",
+  "updatedAt": "2026-11-12T05:50:20+00:00",
   "overall": {
-    "done": 15,
-    "total": 437
+    "done": 18,
+    "total": 440
   },
   "stages": {
     "Greybox": {
-      "done": 15,
-      "total": 83
+      "done": 18,
+      "total": 86
     },
     "Pitch": {
       "done": 0,
