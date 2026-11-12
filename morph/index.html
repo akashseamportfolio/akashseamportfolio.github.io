@@ -148,6 +148,7 @@ h1 span{color:var(--accent)}
       <div class="count" aria-label="0 of 5 tasks completed">0 / 5</div>
     </section>
     </section>
+    <footer class="end"><span class="stamp">Last updated <time id="last-updated">unavailable</time></span></footer>
     <span id="status" class="sr-only" role="status"></span>
   </div>
 </main>
@@ -200,6 +201,16 @@ h1 span{color:var(--accent)}
       if(!data||!data.overall||!data.stages)throw Error('Missing progress data');
       update('overall',data.overall);
       for(const stage of ['Greybox','Pitch','Alpha','Beta','Full Release'])update(stage,data.stages[stage]);
+      const updated=new Date(data.updatedAt);
+      if(data.updatedAt && !Number.isNaN(updated.getTime())){
+        const stamp=document.getElementById('last-updated');
+        stamp.dateTime=updated.toISOString();
+        stamp.textContent=new Intl.DateTimeFormat(undefined,{
+          year:'numeric',month:'short',day:'numeric',
+          hour:'numeric',minute:'2-digit',timeZoneName:'short'
+        }).format(updated);
+        stamp.title='Last successful ClickUp sync';
+      }
       document.getElementById('status').textContent='';
     }catch(err){
       document.getElementById('status').textContent='Progress update unavailable. Showing saved counts.';
