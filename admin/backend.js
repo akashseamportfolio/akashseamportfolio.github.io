@@ -1,7 +1,7 @@
-import {mergeDrafts} from './draft-merge.js?v=e844f2b51df2';
-import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=e844f2b51df2';
-import {pageHtml,makePublicTextFiles} from './site.js?v=e844f2b51df2';
-import {validate,normalize} from './runtime.js?v=e844f2b51df2';
+import {mergeDrafts} from './draft-merge.js?v=aaa32e41be5e';
+import {GitHubClient,decode64,decodeText,digest,bytes64} from './github-client.js?v=aaa32e41be5e';
+import {pageHtml,makePublicTextFiles} from './site.js?v=aaa32e41be5e';
+import {validate,normalize} from './runtime.js?v=aaa32e41be5e';
 const STATE='studio/state.json',FILES='studio/files/';
 const types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',svg:'image/svg+xml',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav'};
 export function initialState(draft,published=draft){return {format:1,revision:0,draft:normalize(structuredClone(draft)),published:normalize(structuredClone(published)),savedAt:null,publishedAt:null};}
@@ -18,6 +18,27 @@ export class GitHubDesk{
   return this.state;
  }
  async localJson(path){const r=await this.fetcher(new URL(path,this.assetBase),{cache:'no-store'});if(!r.ok)throw new Error('Studio Desk files could not load. Reload this page.');return r.json();}
+ async refreshMorph(){
+  if(this.morphRefreshPending)return this.morphRefreshPending;
+  this.morphRefreshPending=(async()=>{
+   if(!this.pagesReady)throw new Error('Connect your Pages repository before refreshing Morph.');
+   try{
+    const result=await this.client.request(this.client.repoPath(this.pagesRepo)+'/actions/workflows/morph-progress.yml/dispatches',{method:'POST',body:{ref:this.pagesBranch||'main'}});
+    return {runId:Number.isSafeInteger(result?.workflow_run_id)?result.workflow_run_id:null};
+   }catch(error){
+    if(error.status===403)throw new Error('GitHub denied the Morph refresh. Your saved token needs Actions: Read and write for the public Pages repository. Edit its permissions in GitHub, then retry with the same saved connection. GitHub usage limits can also cause this error.');
+    if(error.status===404)throw new Error('Morph’s sync workflow was not found or your saved token cannot access it. Check that the Pages repository contains morph-progress.yml and the token has Actions: Read and write.');
+    if(error.status===422)throw new Error('GitHub could not start the Morph workflow. Check that the selected branch exists and the workflow allows manual runs.');
+    throw error;
+   }
+  })();
+  try{return await this.morphRefreshPending;}finally{this.morphRefreshPending=null;}
+ }
+ async morphRefreshStatus(runId){
+  if(!Number.isSafeInteger(runId)||runId<1)throw new Error('Invalid Morph refresh run.');
+  const run=await this.client.request(this.client.repoPath(this.pagesRepo)+'/actions/runs/'+runId);
+  return {status:run.status,conclusion:run.conclusion};
+ }
  async installFiles(){const names=await this.localJson('distribution.json'),files=new Map();for(const name of names){const response=await this.fetcher(new URL(name,this.assetBase),{cache:'no-store'});if(!response.ok)throw new Error('Editor file missing: '+name);files.set('admin/'+name,await response.text());}files.set('admin/distribution.json',JSON.stringify(names));return files;}
  async updateEditor(){
   if(!this.pagesReady)throw new Error('Set up the Pages repository first.');
