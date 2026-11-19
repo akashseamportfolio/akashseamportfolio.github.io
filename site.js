@@ -225,6 +225,12 @@ document.addEventListener('dragstart',event=>{if(!event.target.closest('input,te
  let cleanup=()=>{};
  function navigate(hash=location.hash,animate=false){
   cleanup();let id;try{id=decodeURIComponent(hash.slice(1))}catch{return}
+  // Keep shared case-study links working after editorial section renames.
+  if(/\/portfolio-studio-desk(?:\/|\.html)?$/.test(location.pathname)){
+   const aliases={'what-it-is':'product-definition',identity:'content-design',evidence:'information-architecture',portrait:'interaction-design',accessibility:'accessibility-considerations','studio-desk':'systems-design',implementation:'technical-specification',reflection:'iteration-and-next-steps'};
+   const canonical=aliases[id];
+   if(canonical&&document.getElementById(canonical)){id=canonical;history.replaceState(history.state,'',location.pathname+location.search+'#'+canonical);}
+  }
   const section=document.getElementById(id);if(!section?.matches('.case-story section'))return;
   const heading=section.querySelector('h2')||section,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let active=true,frame=0,started=0,origin=window.scrollY,timeout;
