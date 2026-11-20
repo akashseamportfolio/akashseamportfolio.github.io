@@ -206,7 +206,7 @@ const siteHeader=document.querySelector('.site-header');if(siteHeader){const mea
 })();
 
 // Native image/link dragging competes with the portrait's held-pointer gestures.
-document.addEventListener('dragstart',event=>{if(!event.target.closest('input,textarea,[contenteditable="true"]'))event.preventDefault();});
+document.addEventListener('dragstart',event=>{if(event.target.closest('.portrait-flip,.work-carousel,.project-carousel'))event.preventDefault();});
 // Reading aids appear only on project pages. The gradient follows the page theme.
 (()=>{const page=document.querySelector('.case-page');if(!page)return;const top=page.querySelector('.case-back-top'),hint=page.querySelector('.case-scroll-hint');let pending=false;function measure(){pending=false;const root=document.documentElement,bottom=window.scrollY+window.innerHeight>=root.scrollHeight-8;if(top)top.hidden=window.scrollY<300;if(hint)hint.classList.toggle('at-bottom',bottom)}function schedule(){if(!pending){pending=true;requestAnimationFrame(measure)}}window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule);if(typeof ResizeObserver!=='undefined')new ResizeObserver(schedule).observe(document.body);measure();})();
 
@@ -321,3 +321,21 @@ document.addEventListener('dragstart',event=>{if(!event.target.closest('input,te
  if(location.hash.startsWith('#group-'))requestAnimationFrame(()=>document.getElementById(location.hash.slice(1))?.scrollIntoView({behavior:'instant',block:'start'}));
 })();
 
+
+// Enlarge standalone evidence media without taking over project links or demos.
+(()=>{
+ let dialog=null,opener=null,original=null,resume=false;
+ function close(){if(dialog?.open)dialog.close();}
+ function open(media,button){
+  if(!dialog){dialog=document.createElement('dialog');dialog.className='media-lightbox';dialog.setAttribute('aria-label',document.body.dataset.expandedMedia||'Expanded project media');document.body.append(dialog);dialog.addEventListener('click',e=>{if(e.target===dialog)close();});dialog.addEventListener('close',()=>{dialog.querySelector('video')?.pause();if(resume&&original?.isConnected)original.play().catch(()=>{});dialog.replaceChildren();opener?.focus({preventScroll:true});});}
+  opener=button;original=media;resume=media.tagName==='VIDEO'&&!media.paused;if(resume)media.pause();
+  const exit=document.createElement('button');exit.type='button';exit.className='media-lightbox-close';exit.textContent=document.body.dataset.closeMedia||'Close';exit.addEventListener('click',close);
+  const copy=media.cloneNode(true);copy.removeAttribute('id');copy.removeAttribute('loading');copy.removeAttribute('style');copy.removeAttribute('class');if(copy.tagName==='VIDEO'){copy.controls=true;copy.autoplay=false;copy.currentTime=media.currentTime;}
+  const caption=document.createElement('p');caption.textContent=media.closest('figure')?.querySelector('figcaption')?.textContent||media.alt||'';
+  dialog.replaceChildren(exit,copy,caption);dialog.showModal();exit.focus();
+ }
+ document.querySelectorAll('.case-page .content-media>img,.case-page .content-media>video,.case-page .carousel-frame>img,.case-page .carousel-frame>video').forEach(media=>{
+  if(media.closest('a,.portrait-demo,.carousel-demo'))return;
+  const button=document.createElement('button');button.type='button';button.className='media-enlarge';button.textContent=document.body.dataset.enlargeMedia||'Enlarge';button.setAttribute('aria-label',(document.body.dataset.enlargeMedia||'Enlarge')+' '+(media.alt||media.closest('figure')?.querySelector('figcaption')?.textContent||'project media'));button.addEventListener('click',()=>open(media,button));if(media.closest('.carousel-frame'))media.closest('figure').append(button);else media.after(button);if(media.tagName==='IMG'&&!media.closest('.carousel-frame'))media.addEventListener('click',()=>open(media,button));
+ });
+})();

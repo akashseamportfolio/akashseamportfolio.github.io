@@ -164,7 +164,7 @@ main{min-width:0}img,video{max-width:100%}
 
 
 /* Dragging the public page must not select text or drag images. Editor fields are unaffected. */
-body{-webkit-user-select:none;user-select:none}input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text}img{-webkit-user-drag:none}
+.portrait-flip,.work-carousel,.project-carousel{-webkit-user-select:none;user-select:none}input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text}img{-webkit-user-drag:none}
 .all-work-link{display:table;width:auto;margin-top:36px;padding:10px 16px;border:0;background:var(--accent);color:var(--onaccent);font:500 18px/1.4 'Space Grotesk',sans-serif;transition:opacity .15s}
 .all-work-link:hover,.all-work-link:focus-visible{color:var(--onaccent);box-shadow:none;transform:none;text-decoration:underline;text-underline-offset:4px}
 .contact-socials{grid-template-columns:1fr;gap:12px}.contact-card-text{display:grid;flex:1;min-width:0}.contact-card-text>span{grid-area:1/1;overflow-wrap:anywhere;transition:opacity .06s linear}.contact-hover{opacity:0}.contact-card:has(.contact-hover):focus-visible .contact-normal{opacity:0}.contact-card:focus-visible .contact-hover{opacity:1}
@@ -223,3 +223,21 @@ body{-webkit-user-select:none;user-select:none}input,textarea,[contenteditable="
 .homepage-thumbnail{container-type:inline-size;aspect-ratio:16/10;overflow:hidden;background:var(--bg);color:var(--ink);border-bottom:1px solid var(--ink);text-align:left}.thumbnail-top{height:13%;padding:2.5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ink);font:500 2cqw 'JetBrains Mono',monospace}.thumbnail-top>span:first-child{font-weight:700}.thumbnail-hero{height:87%;box-sizing:border-box;padding:6%;display:grid;grid-template-columns:1.25fr 1fr;gap:7%;align-items:center;background-image:linear-gradient(var(--hair) 1px,transparent 1px),linear-gradient(90deg,var(--hair) 1px,transparent 1px);background-size:5cqw 5cqw}.thumbnail-hero small{font-size:2.2cqw}.thumbnail-hero strong{display:block;font-size:5.7cqw;line-height:1.08;margin:3cqw 0 5cqw;letter-spacing:-.03em}.thumbnail-hero em{color:var(--accent);font-style:normal}.thumbnail-pause{font-size:1.7cqw}.thumbnail-portrait{border:1px solid var(--ink);padding:2%;box-shadow:1cqw 1cqw 0 var(--accent);min-width:0;background:var(--bg)}.thumbnail-portrait img{display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover}.thumbnail-portrait>b{display:grid;place-items:center;aspect-ratio:4/5;font-size:12cqw}.thumbnail-portrait small{font-size:1.5cqw;line-height:1.5;display:block;padding:1cqw 0}.project:hover .homepage-thumbnail{color:var(--ink)}
 
 .carousel-demo{margin:28px 0!important;padding:0!important;width:100%;max-width:100%;}.carousel-demo .project-title{font-size:1rem!important}.carousel-demo .project-description{font-size:.85rem!important}.carousel-demo figcaption{font-size:.85rem;margin-top:16px;opacity:.75}.carousel-demo .projects{margin:0!important}.carousel-demo .project-image{width:100%;height:190px;object-fit:contain}
+
+/* Shared thumbnail framing, independent of the image source. */
+#work .project-cover,#work .homepage-thumbnail{height:clamp(260px,34vw,470px);aspect-ratio:auto;box-sizing:border-box;overflow:hidden}
+#work .project-cover>.project-image{height:100%;width:100%;object-fit:contain}
+.contact-card-text{display:flex;flex-direction:column;gap:5px}
+.contact-card-text>.contact-normal{opacity:1!important}
+.contact-card-text>.contact-hover{font-size:.85rem;min-height:1.4em;transition:opacity .1s ease}
+.contact-address{font-size:.85rem;color:var(--dim);user-select:text}
+.contact-arrow{width:22px;height:22px;flex:none}
+@media(hover:none){.contact-card-text>.contact-hover{opacity:1}}
+.media-enlarge{display:block;margin:8px 0 0 auto;padding:6px 10px;background:var(--bg);color:var(--ink);border:1px solid var(--hair);font:inherit;font-size:.8rem;cursor:zoom-in}
+.content-media>img{cursor:zoom-in}
+.media-lightbox{max-width:94vw;max-height:94dvh;padding:48px 16px 16px;border:1px solid var(--hair);background:var(--bg);color:var(--ink)}
+.media-lightbox::backdrop{background:rgb(0 0 0 / .85)}
+.media-lightbox img,.media-lightbox video{display:block;max-width:88vw;max-height:72dvh;object-fit:contain;margin:auto}
+.media-lightbox p{max-width:70ch;margin:14px auto 0;line-height:1.5}
+.media-lightbox-close{position:absolute;right:12px;top:10px;padding:6px 12px;background:var(--bg);color:var(--ink);border:1px solid var(--hair);font:inherit;cursor:pointer}
+body:has(.media-lightbox[open]){overflow:hidden}

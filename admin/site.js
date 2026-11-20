@@ -1,5 +1,5 @@
-import {usesProjectPage,renderHome,renderWork,renderContact,renderSkills,renderProject,validate,escape} from './runtime.js?v=e844f2b51df2';
-import {templates} from './templates.js?v=e844f2b51df2';
+import {usesProjectPage,renderHome,renderWork,renderContact,renderSkills,renderProject,validate,escape} from './runtime.js?v=c372a15eb211';
+import {templates} from './templates.js?v=c372a15eb211';
 export function renderPages(data){validate(data);return new Map([['index.html',renderHome(data,templates)],['work/index.html',renderWork(data,templates)],['contact/index.html',renderContact(data,templates)],['skills/index.html',renderSkills(data,templates)],...data.projects.filter(p=>p.status==='published'&&usesProjectPage(p)).map(p=>[p.slug+'/index.html',renderProject(data,p,templates)])]);}
 export function pageHtml(data,id,options={}){validate(data);if(id==='home')return renderHome(data,templates);if(id==='work')return renderWork(data,templates);if(id==='contact')return renderContact(data,templates);if(id==='skills')return renderSkills(data,templates);const p=data.projects.find(p=>p.id===id);if(!p)throw new Error('Project not found.');p.status='published';p.pageEnabled=true;return renderProject(data,p,templates,options);}
 export function cleanLinks(html,base='/'){
